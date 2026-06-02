@@ -1,0 +1,263 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html { scroll-behavior: smooth; }
+  body { background: #fdfcf8; color: #1a1f1c; }
+  ::selection { background: #fde68a; color: #1a1f1c; }
+}
+
+@layer utilities {
+  .container-page {
+    max-width: 1200px;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 32px;
+    padding-right: 32px;
+  }
+}
+
+/* Scroll reveal animations */
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+}
+
+.reveal.visible {
+  animation: fadeSlideUp 0.65s ease forwards;
+}
+
+.reveal-1 { animation-delay: 0s; }
+.reveal-2 { animation-delay: 0.1s; }
+.reveal-3 { animation-delay: 0.2s; }
+.reveal-4 { animation-delay: 0.3s; }
+
+/* Card hover animations */
+.hover-card {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.hover-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 32px rgba(0,0,0,0.12) !important;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+
+  /* Hero */
+  .hero-content {
+    padding: 100px 20px 80px !important;
+  }
+
+  /* Grids → single column */
+  .grid-3 {
+    grid-template-columns: 1fr !important;
+  }
+  .grid-4 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  .grid-2 {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Stats strip → 2 cols */
+  .stats-strip {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* Section padding */
+  .section-pad {
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+  }
+
+  /* CTA banner */
+  .cta-banner {
+    flex-direction: column !important;
+    text-align: center !important;
+  }
+}
+
+/* Page specific responsive fixes */
+@media (max-width: 768px) {
+  /* Stats strip */
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* All 3-col grids on home → 1 col */
+  .cards-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Mission section */
+  .mission-inner {
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+
+  /* Hero padding fix */
+  .hero-inner {
+    padding: 100px 20px 80px !important;
+  }
+
+  /* Section padding */
+  .page-section {
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+  }
+
+  /* CTA banner stacks */
+  .cta-inner {
+    flex-direction: column !important;
+    gap: 20px !important;
+    text-align: left !important;
+  }
+
+  /* About page hero grid */
+  .about-hero-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* About bio grid */
+  .bio-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Research 4-col → 2-col */
+  .findings-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* Research 2-col → 1-col */
+  .two-col-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* States grid → 3 col */
+  .states-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+
+  /* Contact grid → 1 col */
+  .contact-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Conversations hero grid */
+  .conv-hero-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Writings hero grid */
+  .writings-hero-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Footer grid → 1 col */
+  .footer-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Admin sidebar hidden on mobile */
+  .admin-sidebar {
+    display: none !important;
+  }
+}
+
+/* Header responsive */
+.desktop-nav { display: flex !important; }
+.mobile-menu-btn { display: none !important; }
+
+@media (max-width: 768px) {
+  .desktop-nav { display: none !important; }
+  .mobile-menu-btn { display: flex !important; }
+  
+  /* About hero - hide sun on mobile, show only text */
+  .about-hero-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .about-hero-grid > div:last-child {
+    display: none !important;
+  }
+
+  /* Bio grid */
+  .bio-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Section padding reduction */
+  section {
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  /* All two-col grids → 1 col */
+  .two-col-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Contact grid */
+  .contact-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Findings grid → 2 col */
+  .findings-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* States grid → 3 col */
+  .states-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+
+  /* Energy source grid → 2 col */
+  .energy-source-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* Hero text fix - prevent overflow */
+  h1 {
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+  }
+
+  /* Reduce hero font on mobile */
+  .hero-headline {
+    font-size: clamp(2rem, 8vw, 3rem) !important;
+  }
+
+  /* Survey form grid → 1 col */
+  .survey-form-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Footer grid → 1 col already handled */
+  .footer-grid {
+    grid-template-columns: 1fr !important;
+    gap: 32px !important;
+  }
+
+  /* Conversations hero stats */
+  .conv-stats {
+    justify-content: flex-start !important;
+    flex-wrap: wrap !important;
+  }
+
+  /* Writings/conversations hero two-col */
+  .writings-hero-grid,
+  .conv-hero-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
