@@ -7,11 +7,11 @@ import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase-client';
 
 const NAV_LINKS = [
-  { href: '/about',         label: 'About' },
-  { href: '/writings',      label: 'Writings' },
+  { href: '/about', label: 'About' },
+  { href: '/writings', label: 'Essays' },
   { href: '/conversations', label: 'Conversations' },
-  { href: '/research',      label: 'Research' },
-  { href: '/contact',       label: 'Contact' },
+  { href: '/research', label: 'Research' },
+  { href: '/contact', label: 'Contact' },
 ];
 
 export default function Header() {
@@ -56,7 +56,7 @@ export default function Header() {
         <div style={{ maxWidth: '1200px', width: '100%', margin: '0 auto', padding: '0 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
 
           {/* Logo */}
-          <Link href="/" style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+          {/* <Link href="/" style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
             <Image
               src="/images/FullLogo_Transparent_NoBuffer.png"
               alt="Agastya Khanna"
@@ -65,6 +65,17 @@ export default function Header() {
               style={{ height: '56px', width: 'auto' }}
               priority
             />
+          </Link> */}
+          <Link href="/" style={{ display: 'flex', alignItems: 'center', flexShrink: 0, textDecoration: 'none' }}>
+            <span style={{
+              fontFamily: "'Brush Script MT', 'Segoe Script', cursive",
+              fontSize: '34px',
+              color: '#0d2318',
+              fontWeight: '400',
+              lineHeight: 1
+            }}>
+              AK
+            </span>
           </Link>
 
           {/* Desktop nav */}
