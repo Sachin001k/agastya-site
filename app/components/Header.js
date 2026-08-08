@@ -70,7 +70,7 @@ export default function Header() {
             <span style={{
               fontFamily: "'Brush Script MT', 'Segoe Script', cursive",
               fontSize: '34px',
-              color: '#0d2318',
+              color: '#f59e0b',
               fontWeight: '400',
               lineHeight: 1
             }}>
