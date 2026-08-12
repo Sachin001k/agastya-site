@@ -86,7 +86,7 @@ export default function WritingEditor({ initialData }) {
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', flexWrap: 'wrap', gap: '12px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <Link href="/admin/writings" style={{ fontSize: '13px', color: '#8a948f', textDecoration: 'none' }}>← Writings</Link>
+          <Link href="/admin/writings" style={{ fontSize: '13px', color: '#8a948f', textDecoration: 'none' }}>← Essays</Link>
           <h1 style={{ fontFamily: 'Georgia, serif', fontSize: '24px', fontWeight: '600', color: '#0d2318', margin: 0 }}>
             {isNew ? 'New essay' : 'Edit essay'}
           </h1>

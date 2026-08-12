@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase-server';
 
-export const metadata = { title: 'Writings' };
+export const metadata = { title: 'Essays' };
 
 export default async function AdminWritingsPage() {
   const supabase = createClient();
@@ -14,7 +14,7 @@ export default async function AdminWritingsPage() {
     <div style={{ padding: '40px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
         <div>
-          <h1 style={{ fontFamily: 'Georgia, serif', fontSize: '28px', fontWeight: '600', color: '#0d2318', margin: 0 }}>Writings</h1>
+          <h1 style={{ fontFamily: 'Georgia, serif', fontSize: '28px', fontWeight: '600', color: '#0d2318', margin: 0 }}>Essays</h1>
           <p style={{ fontSize: '14px', color: '#8a948f', marginTop: '6px' }}>{writings?.length ?? 0} essays total</p>
         </div>
         <Link

@@ -75,7 +75,7 @@ export default async function AdminDashboardPage() {
       <div style={{ padding: '20px 24px', borderRadius: '12px', background: '#fff', border: '1px solid #e5ddd0' }}>
         <p style={{ fontSize: '13px', fontWeight: '600', color: '#0d2318', marginBottom: '8px' }}>How to use the admin panel</p>
         <ul style={{ fontSize: '13px', color: '#5a6661', lineHeight: 1.8, paddingLeft: '20px', margin: 0 }}>
-          <li><strong>Writings</strong> — Add, edit, and publish essays. Toggle draft/published status.</li>
+          <li><strong>Essays</strong> — Add, edit, and publish essays. Toggle draft/published status.</li>
           <li><strong>Conversations</strong> — Add interviews and vlogs with YouTube/Vimeo links or direct uploads.</li>
           <li><strong>Submissions</strong> — View energy survey responses and contact messages.</li>
           <li><strong>Settings</strong> — Edit homepage hero text, about bio, contact info, and social links.</li>
