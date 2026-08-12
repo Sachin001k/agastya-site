@@ -1,16 +1,16 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
+// import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase-client';
 
 const NAV = [
-  { href: '/admin',             label: 'Dashboard',     icon: '📊' },
-  { href: '/admin/writings',    label: 'Writings',      icon: '✍️' },
-  { href: '/admin/conversations',label: 'Conversations', icon: '🎙️' },
-  { href: '/admin/submissions', label: 'Submissions',   icon: '📥' },
-  { href: '/admin/settings',    label: 'Settings',      icon: '⚙️' },
+  { href: '/admin', label: 'Dashboard', icon: '📊' },
+  { href: '/admin/writings', label: 'Writings', icon: '✍️' },
+  { href: '/admin/conversations', label: 'Conversations', icon: '🎙️' },
+  { href: '/admin/submissions', label: 'Submissions', icon: '📥' },
+  { href: '/admin/settings', label: 'Settings', icon: '⚙️' },
 ];
 
 export default function AdminSidebar() {
@@ -27,7 +27,7 @@ export default function AdminSidebar() {
     <aside style={{ width: '240px', minHeight: '100vh', background: '#060f0b', borderRight: '1px solid #1a4a2a', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
       {/* Logo */}
       <div style={{ padding: '24px 20px', borderBottom: '1px solid #1a4a2a' }}>
-        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
+        {/* <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
           <Image
             src="/images/FullLogo_Transparent_NoBuffer.png"
             alt="Agastya Khanna"
@@ -39,7 +39,24 @@ export default function AdminSidebar() {
             <p style={{ fontSize: '13px', fontWeight: '600', color: '#fdfcf8', margin: 0 }}>Agastya Khanna</p>
             <p style={{ fontSize: '11px', color: '#477e67', margin: 0 }}>Admin Panel</p>
           </div>
-        </Link>
+        </Link> */}
+
+
+        <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+          <span style={{
+            fontFamily: "'Brush Script MT', 'Segoe Script', cursive",
+            fontSize: '56px',
+            color: '#f59e0b',
+            fontWeight: '400',
+            lineHeight: 1,
+            display: 'block',
+            marginBottom: '16px'
+          }}>
+            AK
+          </span>
+          <p style={{ fontSize: '11px', fontWeight: '600', letterSpacing: '1.5px', textTransform: 'uppercase', color: '#477e67' }}>Admin Panel</p>
+        </div>
+
       </div>
 
       {/* Nav */}
