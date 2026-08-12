@@ -26,7 +26,10 @@ export default function WritingEditor({ initialData }) {
     content:     initialData?.content     || '',
     tags:        initialData?.tags?.join(', ') || '',
     is_published:initialData?.is_published || false,
+    pdf_url:     initialData?.pdf_url     || null,
   });
+  const [pdfFile, setPdfFile] = useState(null);
+  const [uploadingPdf, setUploadingPdf] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState('');
@@ -44,15 +47,31 @@ export default function WritingEditor({ initialData }) {
     if (!form.title.trim()) { setError('Title is required.'); return; }
     setSaving(true); setError('');
     const supabase = createClient();
+    const slug = form.slug || slugify(form.title);
+
+    let pdfUrl = form.pdf_url;
+    if (pdfFile) {
+      setUploadingPdf(true);
+      const path = `${slug}.pdf`;
+      const { error: uploadError } = await supabase.storage
+        .from('essay-pdfs')
+        .upload(path, pdfFile, { upsert: true, contentType: 'application/pdf' });
+      setUploadingPdf(false);
+      if (uploadError) { setSaving(false); setError(uploadError.message); return; }
+      const { data: urlData } = supabase.storage.from('essay-pdfs').getPublicUrl(path);
+      pdfUrl = urlData.publicUrl;
+    }
+
     const payload = {
       title:        form.title,
-      slug:         form.slug || slugify(form.title),
+      slug,
       excerpt:      form.excerpt || null,
       content:      form.content || null,
       tags:         form.tags ? form.tags.split(',').map(t => t.trim()).filter(Boolean) : [],
       reading_time: estimateReadingTime(form.content),
       is_published: publish !== null ? publish : form.is_published,
       published_at: (publish || form.is_published) ? new Date().toISOString() : null,
+      pdf_url:      pdfUrl,
     };
 
     let error;
@@ -65,9 +84,25 @@ export default function WritingEditor({ initialData }) {
     setSaving(false);
     if (error) { setError(error.message); return; }
     setSaved(true);
+    setPdfFile(null);
+    setForm(prev => ({ ...prev, pdf_url: pdfUrl }));
     setTimeout(() => setSaved(false), 2000);
     if (isNew) router.push('/admin/writings');
     else if (publish !== null) setForm(prev => ({ ...prev, is_published: publish }));
+  };
+
+  const handleRemovePdf = async () => {
+    if (!confirm('Remove the attached PDF?')) return;
+    const supabase = createClient();
+    if (form.pdf_url) {
+      const path = `${form.slug || slugify(form.title)}.pdf`;
+      await supabase.storage.from('essay-pdfs').remove([path]);
+    }
+    if (!isNew) {
+      await supabase.from('writings').update({ pdf_url: null }).eq('id', initialData.id);
+    }
+    setForm(prev => ({ ...prev, pdf_url: null }));
+    setPdfFile(null);
   };
 
   const handleDelete = async () => {
@@ -157,6 +192,37 @@ export default function WritingEditor({ initialData }) {
             <label style={labelStyle}>Tags</label>
             <input type="text" placeholder="energy, policy, solar" style={inputStyle} value={form.tags} onChange={e => update('tags', e.target.value)} />
             <p style={{ fontSize: '11px', color: '#8a948f', marginTop: '4px' }}>Comma separated</p>
+          </div>
+
+          <div style={{ padding: '20px', borderRadius: '14px', background: '#fff', border: '1px solid #e5ddd0' }}>
+            <label style={labelStyle}>PDF attachment</label>
+            <p style={{ fontSize: '11px', color: '#8a948f', marginBottom: '10px' }}>Upload a PDF file to attach to the essay. This will be displayed on the essay page.</p>
+
+            {form.pdf_url && !pdfFile && (
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', padding: '8px 12px', borderRadius: '8px', background: '#f0f7f4', border: '1px solid #bbd7c8', marginBottom: '10px' }}>
+                <a href={form.pdf_url} target="_blank" rel="noopener noreferrer" style={{ fontSize: '12px', color: '#356452', textDecoration: 'none', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  📄 Current PDF ↗
+                </a>
+                <button onClick={handleRemovePdf} style={{ fontSize: '11px', color: '#dc2626', background: 'none', border: 'none', cursor: 'pointer', flexShrink: 0 }}>
+                  Remove
+                </button>
+              </div>
+            )}
+
+            <input
+              type="file"
+              accept="application/pdf"
+              onChange={e => setPdfFile(e.target.files?.[0] || null)}
+              style={{ fontSize: '12px', width: '100%' }}
+            />
+            {pdfFile && (
+              <p style={{ fontSize: '11px', color: '#356452', marginTop: '6px' }}>
+                {pdfFile.name} — will upload on save
+              </p>
+            )}
+            {uploadingPdf && (
+              <p style={{ fontSize: '11px', color: '#8a948f', marginTop: '6px' }}>Uploading PDF...</p>
+            )}
           </div>
 
           {!isNew && form.is_published && (

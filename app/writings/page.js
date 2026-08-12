@@ -1,17 +1,27 @@
 import Link from 'next/link';
 import ScrollReveal from '../components/ScrollReveal';
+import { createClient } from '@/lib/supabase-server';
 
-export default function WritingsPage() {
-  const placeholderWritings = [
-    { slug: 'placeholder-1', title: 'Essay title will appear here', excerpt: 'A short preview of the essay content will show here once the scholar publishes it through the admin panel.', tag: 'Energy Policy',   time: '6 min read', width: '65%' },
-    { slug: 'placeholder-2', title: 'Essay title will appear here', excerpt: 'A short preview of the essay content will show here once the scholar publishes it through the admin panel.', tag: 'Economics',      time: '8 min read', width: '80%' },
-    { slug: 'placeholder-3', title: 'Essay title will appear here', excerpt: 'A short preview of the essay content will show here once the scholar publishes it through the admin panel.', tag: 'Solar Adoption', time: '5 min read', width: '55%' },
-    { slug: 'placeholder-4', title: 'Essay title will appear here', excerpt: 'A short preview of the essay content will show here once the scholar publishes it through the admin panel.', tag: 'Subsidies',      time: '7 min read', width: '70%' },
-    { slug: 'placeholder-5', title: 'Essay title will appear here', excerpt: 'A short preview of the essay content will show here once the scholar publishes it through the admin panel.', tag: 'Households',     time: '9 min read', width: '85%' },
-    { slug: 'placeholder-6', title: 'Essay title will appear here', excerpt: 'A short preview of the essay content will show here once the scholar publishes it through the admin panel.', tag: 'Policy Reform',  time: '6 min read', width: '60%' },
-  ];
+export const revalidate = 60;
 
-  const tags = ['All', 'Energy Policy', 'Economics', 'Solar Adoption', 'Subsidies', 'Households', 'Policy Reform'];
+function stripHtml(html) {
+  return html ? html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim() : '';
+}
+
+async function getPublishedWritings() {
+  const supabase = createClient();
+  const { data } = await supabase
+    .from('writings')
+    .select('id, title, slug, excerpt, content, tags, reading_time, published_at')
+    .eq('is_published', true)
+    .order('published_at', { ascending: false });
+  return data || [];
+}
+
+export default async function WritingsPage() {
+  const writings = await getPublishedWritings();
+  const uniqueTags = Array.from(new Set(writings.flatMap(w => w.tags || [])));
+  const tags = ['All', ...uniqueTags];
 
   return (
     <>
@@ -35,15 +45,15 @@ export default function WritingsPage() {
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', alignItems: 'flex-end' }}>
               <p style={{ fontSize: '13px', color: '#7aaa8e' }}>
-                Essays will be added by the scholar through the admin panel.
+                Essays are added by the scholar through the admin panel.
               </p>
               <div style={{ display: 'flex', gap: '16px' }}>
                 <div style={{ textAlign: 'center' }}>
-                  <p style={{ fontFamily: 'Georgia, serif', fontSize: '28px', fontWeight: '600', color: '#f59e0b', margin: 0 }}>—</p>
+                  <p style={{ fontFamily: 'Georgia, serif', fontSize: '28px', fontWeight: '600', color: '#f59e0b', margin: 0 }}>{writings.length || '—'}</p>
                   <p style={{ fontSize: '11px', color: '#7aaa8e', marginTop: '4px' }}>Essays published</p>
                 </div>
                 <div style={{ textAlign: 'center' }}>
-                  <p style={{ fontFamily: 'Georgia, serif', fontSize: '28px', fontWeight: '600', color: '#f59e0b', margin: 0 }}>—</p>
+                  <p style={{ fontFamily: 'Georgia, serif', fontSize: '28px', fontWeight: '600', color: '#f59e0b', margin: 0 }}>{uniqueTags.length || '—'}</p>
                   <p style={{ fontSize: '11px', color: '#7aaa8e', marginTop: '4px' }}>Topics covered</p>
                 </div>
               </div>
@@ -53,72 +63,88 @@ export default function WritingsPage() {
       </section>
 
       {/* ── FILTER TAGS ── */}
-      <section style={{ background: '#f5f0e8', padding: '28px 32px', borderBottom: '1px solid #e5ddd0', position: 'sticky', top: '88px', zIndex: 30 }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
-          <span style={{ fontSize: '12px', color: '#8a948f', marginRight: '8px', fontWeight: '500' }}>Filter:</span>
-          {tags.map((tag, i) => (
-            <span
-              key={tag}
-              style={{
-                padding: '6px 14px',
-                borderRadius: '999px',
-                fontSize: '13px',
-                fontWeight: '500',
-                cursor: 'pointer',
-                background: i === 0 ? '#0d2318' : '#fff',
-                color: i === 0 ? '#fdfcf8' : '#5a6661',
-                border: '1px solid',
-                borderColor: i === 0 ? '#0d2318' : '#e5ddd0',
-              }}
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
-      </section>
+      {writings.length > 0 && (
+        <section style={{ background: '#f5f0e8', padding: '28px 32px', borderBottom: '1px solid #e5ddd0', position: 'sticky', top: '88px', zIndex: 30 }}>
+          <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
+            <span style={{ fontSize: '12px', color: '#8a948f', marginRight: '8px', fontWeight: '500' }}>Filter:</span>
+            {tags.map((tag, i) => (
+              <span
+                key={tag}
+                style={{
+                  padding: '6px 14px',
+                  borderRadius: '999px',
+                  fontSize: '13px',
+                  fontWeight: '500',
+                  cursor: 'pointer',
+                  background: i === 0 ? '#0d2318' : '#fff',
+                  color: i === 0 ? '#fdfcf8' : '#5a6661',
+                  border: '1px solid',
+                  borderColor: i === 0 ? '#0d2318' : '#e5ddd0',
+                }}
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* ── WRITINGS GRID ── */}
       <section style={{ background: '#f5f0e8', padding: '48px 32px 80px' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <div className='cards-grid' style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
-            {placeholderWritings.map((w, i) => (
-              <Link
-                key={w.slug}
-                href={`/writings/${w.slug}`}
-                className={`reveal reveal-${Math.min(i + 1, 4)} hover-card`}
-                style={{ padding: '28px', borderRadius: '16px', background: '#fff', border: '1px solid #e5ddd0', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', display: 'flex', flexDirection: 'column', textDecoration: 'none' }}
-              >
-                {/* Progress bar */}
-                <div style={{ width: '100%', height: '3px', background: '#e5ddd0', borderRadius: '2px', marginBottom: '20px' }}>
-                  <div style={{ width: w.width, height: '100%', background: 'linear-gradient(to right, #f59e0b, #d97706)', borderRadius: '2px' }} />
-                </div>
+          {writings.length > 0 ? (
+            <div className='cards-grid' style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
+              {writings.map((w, i) => {
+                const stripped = stripHtml(w.content);
+                const excerpt = w.excerpt || (stripped.length > 140 ? `${stripped.slice(0, 140)}…` : stripped);
+                const width = `${Math.min(95, 40 + (w.reading_time || 5) * 6)}%`;
+                return (
+                  <Link
+                    key={w.slug}
+                    href={`/writings/${w.slug}`}
+                    className={`reveal reveal-${Math.min(i + 1, 4)} hover-card`}
+                    style={{ padding: '28px', borderRadius: '16px', background: '#fff', border: '1px solid #e5ddd0', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', display: 'flex', flexDirection: 'column', textDecoration: 'none' }}
+                  >
+                    {/* Progress bar */}
+                    <div style={{ width: '100%', height: '3px', background: '#e5ddd0', borderRadius: '2px', marginBottom: '20px' }}>
+                      <div style={{ width, height: '100%', background: 'linear-gradient(to right, #f59e0b, #d97706)', borderRadius: '2px' }} />
+                    </div>
 
-                {/* Tag + time */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-                  <span style={{ fontSize: '11px', fontWeight: '600', color: '#356452', background: '#f0f7f4', padding: '3px 10px', borderRadius: '999px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                    {w.tag}
-                  </span>
-                  <span style={{ fontSize: '11px', color: '#8a948f' }}>{w.time}</span>
-                </div>
+                    {/* Tag + time */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                      <span style={{ fontSize: '11px', fontWeight: '600', color: '#356452', background: '#f0f7f4', padding: '3px 10px', borderRadius: '999px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                        {w.tags?.[0] || 'Essay'}
+                      </span>
+                      <span style={{ fontSize: '11px', color: '#8a948f' }}>{w.reading_time || 1} min read</span>
+                    </div>
 
-                {/* Title */}
-                <h2 style={{ fontFamily: 'Georgia, serif', fontSize: '19px', fontWeight: '600', color: '#c8b89a', lineHeight: 1.4, marginBottom: '12px', flex: 1 }}>
-                  {w.title}
-                </h2>
+                    {/* Title */}
+                    <h2 style={{ fontFamily: 'Georgia, serif', fontSize: '19px', fontWeight: '600', color: '#0d2318', lineHeight: 1.4, marginBottom: '12px', flex: 1 }}>
+                      {w.title}
+                    </h2>
 
-                {/* Excerpt */}
-                <p style={{ fontSize: '13px', lineHeight: 1.7, color: '#b0a898', marginBottom: '20px' }}>
-                  {w.excerpt}
-                </p>
+                    {/* Excerpt */}
+                    <p style={{ fontSize: '13px', lineHeight: 1.7, color: '#5a6661', marginBottom: '20px' }}>
+                      {excerpt}
+                    </p>
 
-                {/* Footer */}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '16px', borderTop: '1px solid #f0ebe0' }}>
-                  <span style={{ fontSize: '12px', color: '#8a948f' }}>Coming soon</span>
-                  <span style={{ fontSize: '13px', fontWeight: '600', color: '#c8b89a' }}>Read →</span>
-                </div>
-              </Link>
-            ))}
-          </div>
+                    {/* Footer */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '16px', borderTop: '1px solid #f0ebe0' }}>
+                      <span style={{ fontSize: '12px', color: '#8a948f' }}>
+                        {w.published_at ? new Date(w.published_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : ''}
+                      </span>
+                      <span style={{ fontSize: '13px', fontWeight: '600', color: '#356452' }}>Read →</span>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          ) : (
+            <div style={{ padding: '64px 32px', borderRadius: '16px', background: '#fff', border: '2px dashed #e5ddd0', textAlign: 'center' }}>
+              <p style={{ fontFamily: 'Georgia, serif', fontSize: '20px', color: '#c8b89a', marginBottom: '8px' }}>No essays published yet</p>
+              <p style={{ fontSize: '14px', color: '#8a948f' }}>Check back soon — essays are added through the admin panel.</p>
+            </div>
+          )}
         </div>
       </section>
 
