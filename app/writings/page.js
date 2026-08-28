@@ -49,11 +49,11 @@ export default async function WritingsPage() {
               </p>
               <div style={{ display: 'flex', gap: '16px' }}>
                 <div style={{ textAlign: 'center' }}>
-                  <p style={{ fontFamily: 'Georgia, serif', fontSize: '28px', fontWeight: '600', color: '#f59e0b', margin: 0 }}>{writings.length || '—'}</p>
+                  <p style={{ fontFamily: 'Georgia, serif', fontSize: '28px', fontWeight: '600', color: '#f59e0b', margin: 0 }}>{writings.length}</p>
                   <p style={{ fontSize: '11px', color: '#7aaa8e', marginTop: '4px' }}>Essays published</p>
                 </div>
                 <div style={{ textAlign: 'center' }}>
-                  <p style={{ fontFamily: 'Georgia, serif', fontSize: '28px', fontWeight: '600', color: '#f59e0b', margin: 0 }}>{uniqueTags.length || '—'}</p>
+                  <p style={{ fontFamily: 'Georgia, serif', fontSize: '28px', fontWeight: '600', color: '#f59e0b', margin: 0 }}>{uniqueTags.length}</p>
                   <p style={{ fontSize: '11px', color: '#7aaa8e', marginTop: '4px' }}>Topics covered</p>
                 </div>
               </div>
