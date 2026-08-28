@@ -1,7 +1,41 @@
 import Link from 'next/link';
 import ScrollReveal from './components/ScrollReveal';
+import { createClient } from '@/lib/supabase-server';
 
-export default function HomePage() {
+async function getStats() {
+  const supabase = createClient();
+  const [writingsRes, surveysRes] = await Promise.all([
+    supabase.from('writings').select('id').eq('is_published', true),
+    supabase.from('survey_responses').select('id, state')
+  ]);
+
+  const essayCount = writingsRes.data?.length || 0;
+  const surveyCount = surveysRes.data?.length || 0;
+  const stateSet = new Set(surveysRes.data?.map(r => r.state).filter(Boolean));
+
+  return {
+    households: surveyCount,
+    essays: essayCount,
+    conversations: 0,
+    states: stateSet.size
+  };
+}
+
+async function getRecentWritings() {
+  const supabase = createClient();
+  const { data } = await supabase
+    .from('writings')
+    .select('id, title, slug, tags, reading_time')
+    .eq('is_published', true)
+    .order('published_at', { ascending: false })
+    .limit(3);
+  return data || [];
+}
+
+export default async function HomePage() {
+  const stats = await getStats();
+  const recentWritings = await getRecentWritings();
+
   return (
     <>
       <ScrollReveal />
@@ -46,10 +80,10 @@ export default function HomePage() {
       <section style={{ background: '#0d2318', borderTop: '1px solid #1a4a2a', borderBottom: '1px solid #1a4a2a' }}>
         <div className="stats-grid" style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)' }}>
           {[
-            { label: 'Households surveyed', value: '—' },
-            { label: 'Essays published',    value: '—' },
-            { label: 'Conversations',       value: '—' },
-            { label: 'States covered',      value: '—' },
+            { label: 'Households surveyed', value: stats.households },
+            { label: 'Essays published',    value: stats.essays },
+            { label: 'Conversations',       value: stats.conversations },
+            { label: 'States covered',      value: stats.states },
           ].map((s, i) => (
             <div key={s.label} style={{ padding: '28px 16px', textAlign: 'center', borderRight: i < 3 ? '1px solid #1a4a2a' : 'none' }}>
               <p style={{ fontFamily: 'Georgia, serif', fontSize: '28px', fontWeight: '600', color: '#f59e0b', margin: 0 }}>{s.value}</p>
@@ -109,23 +143,19 @@ export default function HomePage() {
             <Link href="/writings" style={{ fontSize: '14px', fontWeight: '500', color: '#356452', textDecoration: 'none' }}>View all →</Link>
           </div>
           <div className="cards-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
-            {[
-              { time: '5 min read', width: '60%' },
-              { time: '8 min read', width: '75%' },
-              { time: '6 min read', width: '85%' },
-            ].map((w, i) => (
-              <div
-                key={i}
+            {recentWritings.map((w, i) => (
+              <Link
+                key={w.id}
+                href={`/writings/${w.slug}`}
                 className={`reveal reveal-${i + 2} hover-card`}
-                style={{ padding: '24px', borderRadius: '12px', background: '#fff', border: '1px solid #e5ddd0', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}
+                style={{ padding: '24px', borderRadius: '12px', background: '#fff', border: '1px solid #e5ddd0', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', textDecoration: 'none', display: 'block' }}
               >
                 <div style={{ width: '100%', height: '4px', background: '#e5ddd0', borderRadius: '2px', marginBottom: '16px' }}>
-                  <div style={{ width: w.width, height: '100%', background: '#c8b89a', borderRadius: '2px' }} />
+                  <div style={{ width: `${55 + i * 15}%`, height: '100%', background: 'linear-gradient(to right, #f59e0b, #d97706)', borderRadius: '2px' }} />
                 </div>
-                <p style={{ fontSize: '11px', color: '#8a948f', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Coming soon · {w.time}</p>
-                <p style={{ fontFamily: 'Georgia, serif', fontSize: '17px', fontWeight: '600', color: '#c8b89a', marginBottom: '10px', lineHeight: 1.4 }}>Essay title will appear here</p>
-                <p style={{ fontSize: '13px', lineHeight: 1.6, color: '#b0a898' }}>A short preview of the essay will show here once published through the admin panel.</p>
-              </div>
+                <p style={{ fontSize: '11px', color: '#8a948f', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{w.tags?.[0] || 'Essay'} · {w.reading_time || 1} min read</p>
+                <p style={{ fontFamily: 'Georgia, serif', fontSize: '17px', fontWeight: '600', color: '#0d2318', marginBottom: '10px', lineHeight: 1.4 }}>{w.title}</p>
+              </Link>
             ))}
           </div>
         </div>
