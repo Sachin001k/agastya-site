@@ -97,9 +97,9 @@ export default async function WritingDetailPage({ params }) {
               style={{ fontSize: '17px', lineHeight: 1.8, color: '#2b332e' }}
               dangerouslySetInnerHTML={{ __html: writing.content }}
             />
-          ) : (
+          ) : !writing.pdf_url ? (
             <p style={{ fontSize: '15px', color: '#8a948f' }}>This essay has no content yet.</p>
-          )}
+          ) : null}
 
           {writing.pdf_url && (
             <div style={{ padding: '24px', borderRadius: '12px', background: '#f5f0e8', border: '1px solid #e5ddd0', marginTop: '40px', textAlign: 'center' }}>
