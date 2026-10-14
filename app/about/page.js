@@ -2,28 +2,25 @@ import fs from 'fs';
 import path from 'path';
 import Link from 'next/link';
 import ScrollReveal from '../components/ScrollReveal';
+import { getSiteContent } from '@/lib/site-content';
 
-// Drop a portrait at public/images/agastya.(jpg|jpeg|png|webp) and it replaces the monogram.
-function getPhoto() {
+export const revalidate = 60;
+
+// Fallback when no photo is uploaded in the admin panel: a portrait at
+// public/images/agastya.(jpg|jpeg|png|webp) replaces the monogram.
+function getLocalPhoto() {
   for (const ext of ['jpg', 'jpeg', 'png', 'webp']) {
     if (fs.existsSync(path.join(process.cwd(), 'public', 'images', `agastya.${ext}`))) return `/images/agastya.${ext}`;
   }
   return null;
 }
 
-const milestones = [
-  { tag: 'Essay',      title: 'Carbon offset markets',                     desc: 'Wrote “False Promises”, an essay for the HUEA Essay Contest 2025 (Environment) arguing that direct emission cuts beat carbon offset schemes.' },
-  { tag: 'Essay',      title: 'Carbon borders and global pricing',         desc: 'Used a game-theory model to ask whether the EU’s Carbon Border Adjustment Mechanism can spread carbon pricing without deepening global inequality.' },
-  { tag: 'Essay',      title: 'Decentralised renewable energy',            desc: 'Examined how off-grid and rooftop solar can deliver reliable, productive power to rural communities across the Global South.' },
-  { tag: 'June 2026',  title: 'Conversations series',                      desc: 'Interviewed Mr. Sudhir Vasudeva, former Chairman & MD of ONGC, and Gautam Handa, Founder of VGS, on India’s energy transition.' },
-  { tag: '2026',       title: 'Household energy survey launched',           desc: 'Launched a primary survey of household electricity use and solar adoption across India.' },
-];
 
-// Add entries here as { title, org, desc } — the section stays hidden while this is empty.
-const achievements = [];
 
-export default function AboutPage() {
-  const photo = getPhoto();
+export default async function AboutPage() {
+  const { about } = await getSiteContent();
+  const photo = about.photo_url || getLocalPhoto();
+  const { milestones, achievements } = about;
 
   return (
     <>
@@ -45,11 +42,11 @@ export default function AboutPage() {
             </h1>
 
             <p style={{ fontSize: '20px', fontWeight: '500', color: '#7aaa8e', marginBottom: '20px', lineHeight: 1.5 }}>
-              Economics Student &amp; Energy Researcher
+              {about.role}
             </p>
 
             <p style={{ fontSize: '17px', lineHeight: 1.8, color: 'rgba(253,252,248,0.65)', marginBottom: '36px', maxWidth: '460px' }}>
-              Agastya Khanna is a high-school student with a deep interest in economics and the future of energy. His work focuses on how policy, behaviour, and technology come together to enable India&apos;s shift toward renewable sources.
+              {about.intro}
             </p>
 
             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
@@ -189,35 +186,28 @@ export default function AboutPage() {
           <div className="reveal reveal-2">
             <p style={{ fontSize: '11px', fontWeight: '600', letterSpacing: '1.5px', textTransform: 'uppercase', color: '#f59e0b', marginBottom: '16px' }}>Background</p>
             <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(1.6rem, 2.5vw, 2.2rem)', fontWeight: '600', color: '#0d2318', lineHeight: 1.3, marginBottom: '20px' }}>
-              An economist&apos;s lens on India&apos;s energy future
+              {about.bio_heading}
             </h2>
-            <p style={{ fontSize: '17px', lineHeight: 1.85, color: '#5a6661', marginBottom: '20px' }}>
-              Agastya Khanna is a high-school student whose academic interests sit at the intersection of economics and environmental policy. Growing up in India, he became increasingly curious about why clean energy adoption — despite its obvious benefits — remains slow and uneven across households and regions.
-            </p>
-            <p style={{ fontSize: '17px', lineHeight: 1.85, color: '#5a6661', marginBottom: '20px' }}>
-              His research takes an economics-first approach: rather than treating energy transition as a purely technical problem, he examines the price signals, subsidy structures, and behavioural incentives that shape real household decisions.
-            </p>
-            <p style={{ fontSize: '17px', lineHeight: 1.85, color: '#5a6661' }}>
-              This website documents that ongoing research journey — from early essays to field data to conversations with people working on these problems every day.
-            </p>
+            {about.bio.filter(Boolean).map((para, i) => (
+              <p key={i} style={{ fontSize: '17px', lineHeight: 1.85, color: '#5a6661', marginBottom: '20px' }}>{para}</p>
+            ))}
 
-            <div className='cards-grid' style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginTop: '36px' }}>
-              {[
-                { label: 'Discipline',   value: 'Economics' },
-                { label: 'Focus',        value: 'Energy Policy' },
-                { label: 'Focus region', value: 'India' },
-              ].map((fact) => (
-                <div key={fact.label} style={{ padding: '16px', borderRadius: '12px', background: '#fff', border: '1px solid #e5ddd0', textAlign: 'center' }}>
+            {about.facts.length > 0 && (
+            <div className='cards-grid' style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(about.facts.length, 3)}, 1fr)`, gap: '16px', marginTop: '16px' }}>
+              {about.facts.map((fact, i) => (
+                <div key={i} style={{ padding: '16px', borderRadius: '12px', background: '#fff', border: '1px solid #e5ddd0', textAlign: 'center' }}>
                   <p style={{ fontSize: '11px', color: '#8a948f', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '6px' }}>{fact.label}</p>
                   <p style={{ fontFamily: 'Georgia, serif', fontSize: '16px', fontWeight: '600', color: '#0d2318' }}>{fact.value}</p>
                 </div>
               ))}
             </div>
+            )}
           </div>
         </div>
       </section>
 
       {/* ── TIMELINE ── */}
+      {milestones.length > 0 && (
       <section style={{ background: '#fff', padding: '80px 20px' }}>
         <div style={{ maxWidth: '800px', margin: '0 auto' }}>
           <p className="reveal reveal-1" style={{ fontSize: '11px', fontWeight: '600', letterSpacing: '1.5px', textTransform: 'uppercase', color: '#f59e0b', marginBottom: '8px' }}>Journey</p>
@@ -240,6 +230,7 @@ export default function AboutPage() {
           </div>
         </div>
       </section>
+      )}
 
       {/* ── ACHIEVEMENTS ── */}
       {achievements.length > 0 && (
@@ -251,7 +242,7 @@ export default function AboutPage() {
             </h2>
             <div className='cards-grid' style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
               {achievements.map((a, i) => (
-                <div key={a.title} className={`reveal reveal-${Math.min(i + 2, 4)} hover-card`} style={{ padding: '28px', borderRadius: '16px', background: '#fff', border: '1px solid #e5ddd0', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+                <div key={i} className={`reveal reveal-${Math.min(i + 2, 4)} hover-card`} style={{ padding: '28px', borderRadius: '16px', background: '#fff', border: '1px solid #e5ddd0', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
                   <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(245,158,11,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
                     <span style={{ fontSize: '20px' }}>🏆</span>
                   </div>

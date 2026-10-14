@@ -2,6 +2,7 @@ import Link from 'next/link';
 import ScrollReveal from './components/ScrollReveal';
 import { createClient } from '@/lib/supabase-server';
 import { getVideoEmbed, formatDuration } from '@/lib/video';
+import { getSiteContent } from '@/lib/site-content';
 
 export const revalidate = 60;
 
@@ -46,6 +47,7 @@ export default async function HomePage() {
   const stats = await getStats();
   const recentWritings = await getRecentWritings();
   const recentConversations = await getRecentConversations();
+  const { home } = await getSiteContent();
 
   return (
     <>
@@ -60,15 +62,15 @@ export default async function HomePage() {
           <div style={{ maxWidth: '560px' }}>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', border: '1px solid rgba(245,158,11,0.4)', borderRadius: '999px', padding: '5px 14px', marginBottom: '24px', background: 'rgba(245,158,11,0.08)' }}>
               <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#f59e0b', display: 'inline-block' }} />
-              <span style={{ fontSize: '11px', letterSpacing: '1.5px', color: '#fcd34d', fontWeight: '500' }}>ECONOMICS · ENERGY · POLICY</span>
+              <span style={{ fontSize: '11px', letterSpacing: '1.5px', color: '#fcd34d', fontWeight: '500' }}>{home.badge}</span>
             </div>
 
             <h1 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(2.4rem, 4vw, 4rem)', fontWeight: '700', lineHeight: 1.1, color: '#fdfcf8', margin: '0 0 20px', letterSpacing: '-0.5px' }}>
-              Rethinking energy <span style={{ color: '#f59e0b' }}>through economics</span>
+              {home.headline} <span style={{ color: '#f59e0b' }}>{home.headline_highlight}</span>
             </h1>
 
             <p style={{ fontSize: '17px', lineHeight: 1.75, color: 'rgba(253,252,248,0.75)', margin: '0 0 36px', maxWidth: '440px' }}>
-              Examining how price signals, policy incentives, and household behaviour shape India&apos;s clean-energy transition.
+              {home.subtext}
             </p>
 
             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
@@ -81,7 +83,7 @@ export default async function HomePage() {
             </div>
 
             <p style={{ marginTop: '48px', fontSize: '11px', letterSpacing: '1.5px', textTransform: 'uppercase', color: 'rgba(253,252,248,0.35)' }}>
-              Primary research · Data-driven analysis · Energy economics
+              {home.tagline}
             </p>
           </div>
         </div>
@@ -109,10 +111,10 @@ export default async function HomePage() {
         <div className="reveal reveal-1" style={{ maxWidth: '720px', margin: '0 auto' }}>
           <p style={{ fontSize: '11px', fontWeight: '600', letterSpacing: '1.5px', textTransform: 'uppercase', color: '#f59e0b', marginBottom: '16px' }}>The project</p>
           <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(1.8rem, 3vw, 2.6rem)', fontWeight: '600', color: '#fdfcf8', lineHeight: 1.3, marginBottom: '20px' }}>
-            India&apos;s energy transition is fundamentally an economics problem.
+            {home.mission_title}
           </h2>
           <p style={{ fontSize: '18px', lineHeight: 1.8, color: '#7aaa8e', marginBottom: '28px' }}>
-            Agastya Khanna is an Economics student whose research examines how household spending patterns, government subsidies, and market incentives determine whether families switch to clean energy — or don&apos;t.
+            {home.mission_text}
           </p>
           <Link href="/about" style={{ fontSize: '14px', fontWeight: '600', color: '#f59e0b', textDecoration: 'none' }}>
             Read more about the project →

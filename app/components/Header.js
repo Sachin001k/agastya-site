@@ -37,6 +37,9 @@ export default function Header() {
 
   const transparent = isHome && !scrolled;
 
+  // The admin panel has its own navigation
+  if (pathname.startsWith('/admin')) return null;
+
   return (
     <>
       {!isHome && <div style={{ height: '72px' }} />}

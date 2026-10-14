@@ -1,16 +1,22 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { createClient } from '@/lib/supabase-client';
 
 export default function AdminLoginPage() {
-  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // The middleware sends signed-in non-admins back here with ?error=not-admin
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get('error') === 'not-admin') {
+      setError('This account does not have admin access.');
+      createClient().auth.signOut();
+    }
+  }, []);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -22,7 +28,8 @@ export default function AdminLoginPage() {
       setError('Invalid email or password.');
       setLoading(false);
     } else {
-      router.replace('/admin');
+      // Full reload so the server-side admin check sees the new session cookie
+      window.location.href = '/admin';
     }
   };
 

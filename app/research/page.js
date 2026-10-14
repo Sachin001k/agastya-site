@@ -1,9 +1,10 @@
 import Link from 'next/link';
 import ScrollReveal from '../components/ScrollReveal';
+import { getSiteContent } from '@/lib/site-content';
 
 // Findings are not shown until the survey has a meaningful sample.
 // Until then this page describes the research design rather than results.
-const TARGET_HOUSEHOLDS = 500;
+export const revalidate = 60;
 
 const researchQuestions = [
   { icon: '⚡', title: 'How much do households use — and pay?', desc: 'Monthly electricity consumption and bills across home types, household sizes and states.' },
@@ -21,7 +22,10 @@ const dataCollected = [
   'Electric-vehicle ownership',
 ];
 
-export default function ResearchPage() {
+export default async function ResearchPage() {
+  const { research } = await getSiteContent();
+  const TARGET_HOUSEHOLDS = research.target_households;
+
   return (
     <>
       <ScrollReveal />
@@ -69,7 +73,7 @@ export default function ResearchPage() {
           <div style={{ marginTop: '36px', padding: '16px 20px', borderRadius: '12px', background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.25)', display: 'flex', alignItems: 'center', gap: '12px' }}>
             <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#f59e0b', display: 'inline-block', flexShrink: 0 }} />
             <p style={{ fontSize: '14px', color: '#fcd34d', margin: 0 }}>
-              Data collection is underway. Findings will be published here once the sample is large enough to be meaningful.{' '}
+              {research.status_text}{' '}
               <Link href="/energy-survey" style={{ color: '#f59e0b', fontWeight: '600', textDecoration: 'underline' }}>Take the survey →</Link>
             </p>
           </div>

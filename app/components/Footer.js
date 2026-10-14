@@ -1,8 +1,14 @@
 import Link from 'next/link';
-import Image from 'next/image';
+import { getSiteContent, socialHref } from '@/lib/site-content';
 
-export default function Footer() {
+export default async function Footer() {
   const year = new Date().getFullYear();
+  const { contact, footer } = await getSiteContent();
+  const socials = [
+    { label: 'LinkedIn', href: socialHref('linkedin', contact.linkedin) },
+    { label: 'X / Twitter', href: socialHref('twitter', contact.twitter) },
+    { label: 'Instagram', href: socialHref('instagram', contact.instagram) },
+  ].filter(s => s.href);
 
   return (
     <footer style={{ background: '#0d2318', borderTop: '1px solid #1a4a2a', marginTop: 'auto' }}>
@@ -26,7 +32,7 @@ export default function Footer() {
               AK
             </span>
             <p style={{ fontSize: '14px', lineHeight: '1.7', color: '#7aaa8e', maxWidth: '280px' }}>
-              Economics student examining India&apos;s clean energy transition through data and policy research.
+              {footer.blurb}
             </p>
           </div>
           <div>
@@ -40,7 +46,10 @@ export default function Footer() {
           <div>
             <p style={{ fontSize: '11px', fontWeight: '600', letterSpacing: '1px', textTransform: 'uppercase', color: '#477e67', marginBottom: '16px' }}>Connect</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <a href="mailto:hello@agastyakhanna.com" style={{ fontSize: '14px', color: '#7aaa8e', textDecoration: 'none' }}>hello@agastyakhanna.com</a>
+              {contact.email && <a href={`mailto:${contact.email}`} style={{ fontSize: '14px', color: '#7aaa8e', textDecoration: 'none' }}>{contact.email}</a>}
+              {socials.map(s => (
+                <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" style={{ fontSize: '14px', color: '#7aaa8e', textDecoration: 'none' }}>{s.label}</a>
+              ))}
               <Link href="/contact" style={{ fontSize: '14px', color: '#7aaa8e', textDecoration: 'none' }}>Send a message</Link>
             </div>
           </div>

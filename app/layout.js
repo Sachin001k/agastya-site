@@ -1,6 +1,7 @@
 import { Toaster } from 'react-hot-toast';
 import Header from './components/Header';
 import Footer from './components/Footer';
+import HideOnAdmin from './components/HideOnAdmin';
 import './globals.css';
 
 export const metadata = {
@@ -21,7 +22,7 @@ export default function RootLayout({ children }) {
       <body>
         <Header />
         <main>{children}</main>
-        <Footer />
+        <HideOnAdmin><Footer /></HideOnAdmin>
         <Toaster
           position="bottom-center"
           toastOptions={{

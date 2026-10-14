@@ -70,7 +70,8 @@ export default function WritingEditor({ initialData }) {
       tags:         form.tags ? form.tags.split(',').map(t => t.trim()).filter(Boolean) : [],
       reading_time: estimateReadingTime(form.content),
       is_published: publish !== null ? publish : form.is_published,
-      published_at: (publish || form.is_published) ? new Date().toISOString() : null,
+      // Keep the original publish date so re-saving doesn't reorder the list
+      published_at: (publish ?? form.is_published) ? (initialData?.published_at || new Date().toISOString()) : null,
       pdf_url:      pdfUrl,
     };
 

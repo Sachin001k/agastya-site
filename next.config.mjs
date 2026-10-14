@@ -17,6 +17,13 @@ const nextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      // Old admin pages, replaced by Website content / Messages / Survey responses
+      { source: '/admin/settings', destination: '/admin/content', permanent: false },
+      { source: '/admin/submissions', destination: '/admin/messages', permanent: false },
+    ];
+  },
 };
 
 export default nextConfig;

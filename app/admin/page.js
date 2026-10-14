@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { createClient } from '@/lib/supabase-server';
 
 export const metadata = { title: 'Dashboard' };
+export const dynamic = 'force-dynamic';
 
 export default async function AdminDashboardPage() {
   const supabase = createClient();
@@ -23,8 +24,8 @@ export default async function AdminDashboardPage() {
   const stats = [
     { label: 'Essays',             value: writingsCount ?? 0, href: '/admin/writings',     color: '#356452' },
     { label: 'Conversations',      value: convsCount    ?? 0, href: '/admin/conversations', color: '#b45309' },
-    { label: 'Survey responses',   value: energyCount   ?? 0, href: '/admin/submissions',  color: '#477e67' },
-    { label: 'Messages',           value: feedbackCount ?? 0, href: '/admin/submissions',  color: '#0d2318',
+    { label: 'Survey responses',   value: energyCount   ?? 0, href: '/admin/survey',       color: '#477e67' },
+    { label: 'Messages',           value: feedbackCount ?? 0, href: '/admin/messages',     color: '#0d2318',
       badge: unreadCount > 0 ? `${unreadCount} unread` : null },
   ];
 
@@ -57,8 +58,9 @@ export default async function AdminDashboardPage() {
           {[
             { href: '/admin/writings/new',      label: '+ New essay',        color: '#f59e0b', textColor: '#060f0b' },
             { href: '/admin/conversations/new', label: '+ New conversation', color: '#0d2318', textColor: '#fdfcf8' },
-            { href: '/admin/submissions',       label: 'View submissions',   color: '#fff',    textColor: '#0d2318', border: '1px solid #e5ddd0' },
-            { href: '/admin/settings',          label: 'Edit site settings', color: '#fff',    textColor: '#0d2318', border: '1px solid #e5ddd0' },
+            { href: '/admin/content',           label: 'Edit website text & photo', color: '#fff', textColor: '#0d2318', border: '1px solid #e5ddd0' },
+            { href: '/admin/messages',          label: 'Read messages',      color: '#fff',    textColor: '#0d2318', border: '1px solid #e5ddd0' },
+            { href: '/admin/survey',            label: 'Survey responses',   color: '#fff',    textColor: '#0d2318', border: '1px solid #e5ddd0' },
           ].map((a) => (
             <Link
               key={a.href}
@@ -76,9 +78,10 @@ export default async function AdminDashboardPage() {
         <p style={{ fontSize: '13px', fontWeight: '600', color: '#0d2318', marginBottom: '8px' }}>How to use the admin panel</p>
         <ul style={{ fontSize: '13px', color: '#5a6661', lineHeight: 1.8, paddingLeft: '20px', margin: 0 }}>
           <li><strong>Essays</strong> — Add, edit, and publish essays. Toggle draft/published status.</li>
-          <li><strong>Conversations</strong> — Add interviews and vlogs with YouTube/Vimeo links or direct uploads.</li>
-          <li><strong>Submissions</strong> — View energy survey responses and contact messages.</li>
-          <li><strong>Settings</strong> — Edit homepage hero text, about bio, contact info, and social links.</li>
+          <li><strong>Conversations</strong> — Add interviews and vlogs with YouTube, Vimeo or Google Drive links.</li>
+          <li><strong>Survey responses</strong> — Review, export (CSV) or delete household survey responses.</li>
+          <li><strong>Messages</strong> — Read, reply to and delete messages from the contact form.</li>
+          <li><strong>Website content</strong> — Edit the text on the homepage, About, Research and Contact pages, upload the About photo, and manage milestones and achievements.</li>
         </ul>
       </div>
     </div>

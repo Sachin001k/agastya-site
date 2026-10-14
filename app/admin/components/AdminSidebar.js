@@ -2,25 +2,25 @@
 
 import Link from 'next/link';
 // import Image from 'next/image';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { createClient } from '@/lib/supabase-client';
 
 const NAV = [
   { href: '/admin', label: 'Dashboard', icon: '📊' },
   { href: '/admin/writings', label: 'Essays', icon: '✍️' },
   { href: '/admin/conversations', label: 'Conversations', icon: '🎙️' },
-  { href: '/admin/submissions', label: 'Submissions', icon: '📥' },
-  { href: '/admin/settings', label: 'Settings', icon: '⚙️' },
+  { href: '/admin/survey', label: 'Survey responses', icon: '📋' },
+  { href: '/admin/messages', label: 'Messages', icon: '✉️' },
+  { href: '/admin/content', label: 'Website content', icon: '🖊️' },
 ];
 
 export default function AdminSidebar() {
   const pathname = usePathname();
-  const router = useRouter();
 
   const handleLogout = async () => {
     const supabase = createClient();
     await supabase.auth.signOut();
-    router.replace('/admin/login');
+    window.location.href = '/admin/login';
   };
 
   return (
