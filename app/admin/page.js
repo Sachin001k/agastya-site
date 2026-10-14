@@ -37,7 +37,7 @@ export default async function AdminDashboardPage() {
       </div>
 
       {/* Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '40px' }}>
+      <div className="admin-stats" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '40px' }}>
         {stats.map((s) => (
           <Link key={s.label} href={s.href} style={{ padding: '24px', borderRadius: '16px', background: '#fff', border: '1px solid #e5ddd0', textDecoration: 'none', display: 'block', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
             <p style={{ fontFamily: 'Georgia, serif', fontSize: '36px', fontWeight: '700', color: s.color, margin: '0 0 6px' }}>{s.value}</p>

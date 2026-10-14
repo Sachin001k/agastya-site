@@ -1,8 +1,16 @@
+import { OG_IMAGES } from '@/lib/seo';
 import Link from 'next/link';
 import ScrollReveal from '../components/ScrollReveal';
 import ConversationsGrid from './ConversationsGrid';
 import { createClient } from '@/lib/supabase-server';
 import { getVideoEmbed, formatDuration } from '@/lib/video';
+import { getConversationCovers } from '@/lib/covers-server';
+
+export const metadata = {
+  title: 'Conversations',
+  description: 'Interviews with people shaping India’s energy transition.',
+  openGraph: { title: 'Conversations · Agastya Khanna', description: 'Interviews with people shaping India’s energy transition.', images: OG_IMAGES },
+};
 
 export const revalidate = 60;
 
@@ -13,6 +21,7 @@ async function getConversations() {
     .select('title, slug, type, description, video_url, guest_name, duration_seconds, published_at')
     .eq('is_published', true)
     .order('published_at', { ascending: false });
+  const covers = await getConversationCovers();
   return (data || []).map(c => ({
     slug: c.slug,
     type: c.type === 'vlog' ? 'Vlog' : 'Interview',
@@ -21,7 +30,7 @@ async function getConversations() {
     duration: formatDuration(c.duration_seconds),
     seconds: c.duration_seconds || 0,
     desc: c.description,
-    thumbnail: getVideoEmbed(c.video_url)?.thumbnail || null,
+    thumbnail: covers[c.slug] || getVideoEmbed(c.video_url)?.thumbnail || null,
   }));
 }
 

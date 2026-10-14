@@ -68,12 +68,12 @@ export default function EnergySurveyPage() {
       }
 
       // Store in sessionStorage for results page
-      sessionStorage.setItem('survey_data', JSON.stringify(form));
+      try { sessionStorage.setItem('survey_data', JSON.stringify(form)); localStorage.setItem('survey_data', JSON.stringify(form)); } catch {}
       router.push('/energy-survey/results');
     } catch (err) {
       console.error(err);
       // Still redirect even if there's an error
-      sessionStorage.setItem('survey_data', JSON.stringify(form));
+      try { sessionStorage.setItem('survey_data', JSON.stringify(form)); localStorage.setItem('survey_data', JSON.stringify(form)); } catch {}
       router.push('/energy-survey/results');
     }
   };
@@ -160,15 +160,15 @@ export default function EnergySurveyPage() {
 
                 <div className='two-col-grid' style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                   <div>
-                    <label style={labelStyle}>Number of people in household</label>
-                    <select style={selectStyle} value={form.household_size} onChange={e => update('household_size', e.target.value)}>
+                    <label htmlFor="survey-household-size" style={labelStyle}>Number of people in household</label>
+                    <select id="survey-household-size" style={selectStyle} value={form.household_size} onChange={e => update('household_size', e.target.value)}>
                       <option value="">Select</option>
                       {[1,2,3,4,5,6,7,'8+'].map(n => <option key={n} value={n}>{n} {n === 1 ? 'person' : 'people'}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label style={labelStyle}>Type of home</label>
-                    <select style={selectStyle} value={form.home_type} onChange={e => update('home_type', e.target.value)}>
+                    <label htmlFor="survey-home-type" style={labelStyle}>Type of home</label>
+                    <select id="survey-home-type" style={selectStyle} value={form.home_type} onChange={e => update('home_type', e.target.value)}>
                       <option value="">Select</option>
                       <option value="apartment">Apartment / Flat</option>
                       <option value="independent_house">Independent house</option>
@@ -177,22 +177,22 @@ export default function EnergySurveyPage() {
                     </select>
                   </div>
                   <div>
-                    <label style={labelStyle}>Approximate home size (sq ft) <span style={{ fontWeight: '400', color: '#8a948f' }}>— optional</span></label>
-                    <input type="number" placeholder="e.g. 1200" style={inputStyle} value={form.home_size_sqft} onChange={e => update('home_size_sqft', e.target.value)} />
+                    <label htmlFor="survey-home-size-sqft" style={labelStyle}>Approximate home size (sq ft) <span style={{ fontWeight: '400', color: '#8a948f' }}>— optional</span></label>
+                    <input id="survey-home-size-sqft" type="number" placeholder="e.g. 1200" style={inputStyle} value={form.home_size_sqft} onChange={e => update('home_size_sqft', e.target.value)} />
                   </div>
                   <div>
-                    <label style={labelStyle}>Number of ACs</label>
-                    <select style={selectStyle} value={form.ac_count} onChange={e => update('ac_count', e.target.value)}>
+                    <label htmlFor="survey-ac-count" style={labelStyle}>Number of ACs</label>
+                    <select id="survey-ac-count" style={selectStyle} value={form.ac_count} onChange={e => update('ac_count', e.target.value)}>
                       {[0,1,2,3,4,'5+'].map(n => <option key={n} value={n}>{n}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label style={labelStyle}>City</label>
-                    <input type="text" placeholder="e.g. Mumbai" style={inputStyle} value={form.city} onChange={e => update('city', e.target.value)} />
+                    <label htmlFor="survey-city" style={labelStyle}>City</label>
+                    <input id="survey-city" type="text" placeholder="e.g. Mumbai" style={inputStyle} value={form.city} onChange={e => update('city', e.target.value)} />
                   </div>
                   <div>
-                    <label style={labelStyle}>State</label>
-                    <select style={selectStyle} value={form.state} onChange={e => update('state', e.target.value)}>
+                    <label htmlFor="survey-state" style={labelStyle}>State</label>
+                    <select id="survey-state" style={selectStyle} value={form.state} onChange={e => update('state', e.target.value)}>
                       <option value="">Select state</option>
                       {['Andhra Pradesh','Assam','Bihar','Delhi','Gujarat','Haryana','Himachal Pradesh','Jharkhand','Karnataka','Kerala','Madhya Pradesh','Maharashtra','Odisha','Punjab','Rajasthan','Tamil Nadu','Telangana','Uttar Pradesh','Uttarakhand','West Bengal','Other'].map(s => <option key={s} value={s}>{s}</option>)}
                     </select>
@@ -217,30 +217,33 @@ export default function EnergySurveyPage() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                   <div className='two-col-grid' style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                     <div>
-                      <label style={labelStyle}>Monthly electricity consumption (kWh)</label>
-                      <input type="number" placeholder="e.g. 250" style={inputStyle} value={form.monthly_electricity_kwh} onChange={e => update('monthly_electricity_kwh', e.target.value)} />
+                      <label htmlFor="survey-monthly-electricity-kwh" style={labelStyle}>Monthly electricity consumption (kWh)</label>
+                      <input id="survey-monthly-electricity-kwh" type="number" placeholder="e.g. 250" style={inputStyle} value={form.monthly_electricity_kwh} onChange={e => update('monthly_electricity_kwh', e.target.value)} />
                       <p style={{ fontSize: '12px', color: '#8a948f', marginTop: '6px' }}>Found on your electricity bill</p>
                     </div>
                     <div>
-                      <label style={labelStyle}>Monthly electricity bill (₹)</label>
-                      <input type="number" placeholder="e.g. 2500" style={inputStyle} value={form.monthly_electricity_bill} onChange={e => update('monthly_electricity_bill', e.target.value)} />
+                      <label htmlFor="survey-monthly-electricity-bill" style={labelStyle}>Monthly electricity bill (₹)</label>
+                      <input id="survey-monthly-electricity-bill" type="number" placeholder="e.g. 2500" style={inputStyle} value={form.monthly_electricity_bill} onChange={e => update('monthly_electricity_bill', e.target.value)} />
                       <p style={{ fontSize: '12px', color: '#8a948f', marginTop: '6px' }}>If you don&apos;t know kWh, bill amount works too</p>
                     </div>
                   </div>
 
                   <div>
-                    <label style={labelStyle}>Primary energy source</label>
-                    <div className='energy-source-grid' style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px' }}>
+                    <p id="survey-source-label" style={labelStyle}>Primary energy source</p>
+                    <div className='energy-source-grid' role="group" aria-labelledby="survey-source-label" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px' }}>
                       {[
                         { value: 'grid',      label: 'Grid only',     icon: '🏭' },
                         { value: 'solar',     label: 'Solar only',    icon: '☀️' },
                         { value: 'mixed',     label: 'Grid + Solar',  icon: '⚡' },
                         { value: 'generator', label: 'Generator',     icon: '🔋' },
                       ].map((opt) => (
-                        <div
+                        <button
+                          type="button"
                           key={opt.value}
+                          aria-pressed={form.primary_energy_source === opt.value}
                           onClick={() => update('primary_energy_source', opt.value)}
                           style={{
+                            fontFamily: 'inherit',
                             padding: '16px 12px',
                             borderRadius: '12px',
                             border: `2px solid ${form.primary_energy_source === opt.value ? '#f59e0b' : '#e5ddd0'}`,
@@ -252,7 +255,7 @@ export default function EnergySurveyPage() {
                         >
                           <span style={{ fontSize: '24px', display: 'block', marginBottom: '6px' }}>{opt.icon}</span>
                           <span style={{ fontSize: '12px', fontWeight: '600', color: form.primary_energy_source === opt.value ? '#d97706' : '#5a6661' }}>{opt.label}</span>
-                        </div>
+                        </button>
                       ))}
                     </div>
                   </div>
@@ -265,9 +268,9 @@ export default function EnergySurveyPage() {
                   </div>
 
                   <div>
-                    <label style={labelStyle}>Approximate number of major appliances <span style={{ fontWeight: '400', color: '#8a948f' }}>— optional</span></label>
+                    <label htmlFor="survey-appliances-count" style={labelStyle}>Approximate number of major appliances <span style={{ fontWeight: '400', color: '#8a948f' }}>— optional</span></label>
                     <p style={{ fontSize: '12px', color: '#8a948f', marginBottom: '8px' }}>Count: AC, fridge, washing machine, TV, geyser, microwave etc.</p>
-                    <input type="number" placeholder="e.g. 6" style={{ ...inputStyle, maxWidth: '200px' }} value={form.appliances_count} onChange={e => update('appliances_count', e.target.value)} />
+                    <input id="survey-appliances-count" type="number" placeholder="e.g. 6" style={{ ...inputStyle, maxWidth: '200px' }} value={form.appliances_count} onChange={e => update('appliances_count', e.target.value)} />
                   </div>
                 </div>
               </div>
@@ -281,8 +284,8 @@ export default function EnergySurveyPage() {
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                   <div>
-                    <label style={labelStyle}>Email address <span style={{ fontWeight: '400', color: '#8a948f' }}>— optional</span></label>
-                    <input type="email" placeholder="you@example.com" style={{ ...inputStyle, maxWidth: '400px' }} value={form.email} onChange={e => update('email', e.target.value)} />
+                    <label htmlFor="survey-email" style={labelStyle}>Email address <span style={{ fontWeight: '400', color: '#8a948f' }}>— optional</span></label>
+                    <input id="survey-email" type="email" placeholder="you@example.com" style={{ ...inputStyle, maxWidth: '400px' }} value={form.email} onChange={e => update('email', e.target.value)} />
                   </div>
 
                   {/* Consent */}

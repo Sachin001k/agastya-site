@@ -9,10 +9,18 @@ export default function ContactClient({ contact }) {
   const [status, setStatus] = useState('idle');
 
   const update = (field, value) => setForm(prev => ({ ...prev, [field]: value }));
+  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim());
+  const canSend = form.message.trim() && emailValid;
+  const channels = [
+    { icon: '✉️', label: 'Email',       value: contact.email,     href: contact.email ? `mailto:${contact.email}` : null },
+    { icon: '🔗', label: 'LinkedIn',    value: contact.linkedin,  href: socialHref('linkedin', contact.linkedin) },
+    { icon: '𝕏',  label: 'X / Twitter', value: contact.twitter,   href: socialHref('twitter', contact.twitter) },
+    { icon: '📷', label: 'Instagram',   value: contact.instagram, href: socialHref('instagram', contact.instagram) },
+  ].filter(c => c.href);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.message.trim()) return;
+    if (!form.message.trim() || !emailValid) return;
     setStatus('loading');
     try {
       const { createClient } = await import('@/lib/supabase-client');
@@ -63,12 +71,16 @@ export default function ContactClient({ contact }) {
               </p>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {[
-                { icon: '✉️', label: 'Email',     value: contact.email,     href: contact.email ? `mailto:${contact.email}` : null },
-                { icon: '🔗', label: 'LinkedIn',  value: contact.linkedin,  href: socialHref('linkedin', contact.linkedin) },
-                { icon: '𝕏',  label: 'X / Twitter', value: contact.twitter, href: socialHref('twitter', contact.twitter) },
-                { icon: '📷', label: 'Instagram', value: contact.instagram, href: socialHref('instagram', contact.instagram) },
-              ].filter(c => c.href).map((c) => (
+              {channels.length === 0 && (
+                <a href="#contact-form" style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '18px 20px', borderRadius: '12px', background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.25)', textDecoration: 'none' }}>
+                  <span style={{ fontSize: '20px' }}>✉️</span>
+                  <div>
+                    <p style={{ fontSize: '14px', color: '#fdfcf8', margin: 0, fontWeight: '600' }}>Send a message below</p>
+                    <p style={{ fontSize: '13px', color: '#7aaa8e', margin: '2px 0 0' }}>It goes straight to Agastya&apos;s inbox.</p>
+                  </div>
+                </a>
+              )}
+              {channels.map((c) => (
                 <a key={c.label} href={c.href} target={c.label === 'Email' ? undefined : '_blank'} rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '14px 18px', borderRadius: '12px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', textDecoration: 'none' }}>
                   <span style={{ fontSize: '20px' }}>{c.icon}</span>
                   <div>
@@ -121,40 +133,40 @@ export default function ContactClient({ contact }) {
                   </button>
                 </div>
               ) : (
-                <form onSubmit={handleSubmit} style={{ padding: '36px', borderRadius: '20px', background: '#fff', border: '1px solid #e5ddd0', boxShadow: '0 4px 16px rgba(0,0,0,0.06)' }}>
+                <form id="contact-form" onSubmit={handleSubmit} style={{ scrollMarginTop: "100px", padding: '36px', borderRadius: '20px', background: '#fff', border: '1px solid #e5ddd0', boxShadow: '0 4px 16px rgba(0,0,0,0.06)' }}>
                   <h2 style={{ fontFamily: 'Georgia, serif', fontSize: '24px', fontWeight: '600', color: '#0d2318', marginBottom: '8px' }}>Send a message</h2>
                   <p style={{ fontSize: '14px', color: '#8a948f', marginBottom: '28px' }}>Usually responds within 2–3 days.</p>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                     <div className="contact-name-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                       <div>
-                        <label style={labelStyle}>Name <span style={{ fontWeight: '400', color: '#8a948f' }}>— optional</span></label>
-                        <input type="text" placeholder="Your name" style={inputStyle} value={form.name} onChange={e => update('name', e.target.value)} />
+                        <label htmlFor="contact-name" style={labelStyle}>Name <span style={{ fontWeight: '400', color: '#8a948f' }}>— optional</span></label>
+                        <input id="contact-name" type="text" autoComplete="name" placeholder="Your name" style={inputStyle} value={form.name} onChange={e => update('name', e.target.value)} />
                       </div>
                       <div>
-                        <label style={labelStyle}>Email <span style={{ fontWeight: '400', color: '#8a948f' }}>— optional</span></label>
-                        <input type="email" placeholder="you@example.com" style={inputStyle} value={form.email} onChange={e => update('email', e.target.value)} />
+                        <label htmlFor="contact-email" style={labelStyle}>Email <span style={{ color: '#dc2626' }}>*</span></label>
+                        <input id="contact-email" type="email" required autoComplete="email" placeholder="you@example.com" style={inputStyle} value={form.email} onChange={e => update('email', e.target.value)} />
                       </div>
                     </div>
                     <div>
-                      <label style={labelStyle}>Subject</label>
+                      <p id="contact-subject" style={labelStyle}>Subject</p>
                       <div className="contact-subject-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
                         {[{value:'general',label:'General'},{value:'feedback',label:'Feedback'},{value:'collaboration',label:'Collaborate'},{value:'other',label:'Other'}].map((opt) => (
-                          <div key={opt.value} onClick={() => update('subject_type', opt.value)} style={{ padding: '10px 8px', borderRadius: '10px', border: `2px solid ${form.subject_type === opt.value ? '#f59e0b' : '#e5ddd0'}`, background: form.subject_type === opt.value ? 'rgba(245,158,11,0.08)' : '#fff', cursor: 'pointer', textAlign: 'center' }}>
+                          <button type="button" key={opt.value} aria-pressed={form.subject_type === opt.value} onClick={() => update('subject_type', opt.value)} style={{ fontFamily: 'inherit', padding: '10px 8px', borderRadius: '10px', border: `2px solid ${form.subject_type === opt.value ? '#f59e0b' : '#e5ddd0'}`, background: form.subject_type === opt.value ? 'rgba(245,158,11,0.08)' : '#fff', cursor: 'pointer', textAlign: 'center' }}>
                             <span style={{ fontSize: '12px', fontWeight: '600', color: form.subject_type === opt.value ? '#d97706' : '#5a6661' }}>{opt.label}</span>
-                          </div>
+                          </button>
                         ))}
                       </div>
                     </div>
                     <div>
-                      <label style={labelStyle}>Message <span style={{ color: '#dc2626' }}>*</span></label>
-                      <textarea placeholder="What would you like to say?" rows={5} required style={{ ...inputStyle, resize: 'vertical', minHeight: '120px' }} value={form.message} onChange={e => update('message', e.target.value)} />
+                      <label htmlFor="contact-message" style={labelStyle}>Message <span style={{ color: '#dc2626' }}>*</span></label>
+                      <textarea id="contact-message" placeholder="What would you like to say?" rows={5} required style={{ ...inputStyle, resize: 'vertical', minHeight: '120px' }} value={form.message} onChange={e => update('message', e.target.value)} />
                     </div>
                     {status === 'error' && (
                       <p style={{ fontSize: '13px', color: '#dc2626', padding: '10px 14px', background: '#fef2f2', borderRadius: '8px', border: '1px solid #fecaca' }}>
                         Something went wrong. Please try again or email directly.
                       </p>
                     )}
-                    <button type="submit" disabled={status === 'loading' || !form.message.trim()} style={{ padding: '14px 28px', borderRadius: '999px', background: form.message.trim() ? '#f59e0b' : '#e5ddd0', color: form.message.trim() ? '#060f0b' : '#8a948f', fontSize: '14px', fontWeight: '700', border: 'none', cursor: form.message.trim() ? 'pointer' : 'not-allowed', alignSelf: 'flex-start' }}>
+                    <button type="submit" disabled={status === 'loading' || !canSend} style={{ padding: '14px 28px', borderRadius: '999px', background: canSend ? '#f59e0b' : '#e5ddd0', color: canSend ? '#060f0b' : '#8a948f', fontSize: '14px', fontWeight: '700', border: 'none', cursor: canSend ? 'pointer' : 'not-allowed', alignSelf: 'flex-start' }}>
                       {status === 'loading' ? 'Sending...' : 'Send message →'}
                     </button>
                   </div>

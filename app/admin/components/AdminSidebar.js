@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 // import Image from 'next/image';
+import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { createClient } from '@/lib/supabase-client';
 
@@ -16,6 +17,10 @@ const NAV = [
 
 export default function AdminSidebar() {
   const pathname = usePathname();
+  const [open, setOpen] = useState(false);
+
+  // Close the mobile menu after navigating
+  useEffect(() => { setOpen(false); }, [pathname]);
 
   const handleLogout = async () => {
     const supabase = createClient();
@@ -24,7 +29,28 @@ export default function AdminSidebar() {
   };
 
   return (
-    <aside style={{ width: '240px', minHeight: '100vh', background: '#060f0b', borderRight: '1px solid #1a4a2a', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
+    <>
+      <style>{`
+        @media (max-width: 768px) {
+          .admin-shell { flex-direction: column; }
+          .admin-topbar { display: flex !important; }
+          .admin-sidebar { position: fixed !important; top: 0; left: 0; bottom: 0; z-index: 70; transform: translateX(-100%); transition: transform 0.25s ease; }
+          .admin-sidebar.open { transform: none; box-shadow: 0 0 40px rgba(0,0,0,0.4); }
+          .admin-main > div { padding: 20px 16px !important; }
+          .admin-editor-grid { grid-template-columns: 1fr !important; }
+          .admin-stats { grid-template-columns: repeat(2, 1fr) !important; }
+        }
+      `}</style>
+
+      {/* Mobile top bar */}
+      <div className="admin-topbar" style={{ display: 'none', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', background: '#060f0b', borderBottom: '1px solid #1a4a2a', position: 'sticky', top: 0, zIndex: 50 }}>
+        <span style={{ fontFamily: "'Brush Script MT', 'Segoe Script', cursive", fontSize: '30px', color: '#f59e0b', lineHeight: 1 }}>AK</span>
+        <span style={{ fontSize: '11px', fontWeight: '600', letterSpacing: '1.5px', textTransform: 'uppercase', color: '#477e67' }}>Admin Panel</span>
+        <button type="button" aria-label="Open menu" onClick={() => setOpen(true)} style={{ background: 'none', border: '1px solid #1a4a2a', borderRadius: '8px', color: '#fdfcf8', fontSize: '18px', padding: '4px 10px', cursor: 'pointer' }}>☰</button>
+      </div>
+      {open && <div onClick={() => setOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 65 }} />}
+
+    <aside className={`admin-sidebar${open ? ' open' : ''}`} style={{ width: '240px', minHeight: '100vh', background: '#060f0b', borderRight: '1px solid #1a4a2a', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
       {/* Logo */}
       <div style={{ padding: '24px 20px', borderBottom: '1px solid #1a4a2a' }}>
         {/* <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
@@ -106,5 +132,6 @@ export default function AdminSidebar() {
         </button>
       </div>
     </aside>
+    </>
   );
 }

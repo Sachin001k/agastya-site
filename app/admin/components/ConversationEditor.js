@@ -1,16 +1,18 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
 import { createClient } from '@/lib/supabase-client';
-import { detectVideoSource as detectSource } from '@/lib/video';
+import { detectVideoSource as detectSource, getVideoEmbed } from '@/lib/video';
+import { adminFetch } from './ui';
 
 function slugify(str) {
   return str.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 80);
 }
 
-export default function ConversationEditor({ initialData }) {
+export default function ConversationEditor({ initialData, coverUrl: initialCover = null }) {
   const router = useRouter();
   const isNew = !initialData?.id;
 
@@ -22,7 +24,7 @@ export default function ConversationEditor({ initialData }) {
     video_url:        initialData?.video_url        || '',
     guest_name:       initialData?.guest_name       || '',
     guest_bio:        initialData?.guest_bio        || '',
-    duration_seconds: initialData?.duration_seconds ? Math.round(initialData.duration_seconds / 60) : '',
+    duration_seconds: initialData?.duration_seconds || '', // already converted to minutes by the edit page
     transcript:       initialData?.transcript       || '',
     is_published:     initialData?.is_published     || false,
   });
@@ -68,7 +70,8 @@ export default function ConversationEditor({ initialData }) {
     }
 
     setSaving(false);
-    if (error) { setError(error.message); return; }
+    if (error) { setError(error.message); toast.error(error.message); return; }
+    toast.success(publish === true ? 'Published' : publish === false ? 'Unpublished — now a draft' : 'Saved');
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
     if (isNew) router.push('/admin/conversations');
@@ -102,7 +105,7 @@ export default function ConversationEditor({ initialData }) {
             </button>
           )}
           <button onClick={() => handleSave()} disabled={saving} style={{ padding: '9px 16px', borderRadius: '8px', background: '#f5f0e8', border: '1px solid #e5ddd0', color: '#0d2318', fontSize: '13px', fontWeight: '500', cursor: 'pointer' }}>
-            {saving ? 'Saving...' : saved ? '✓ Saved' : 'Save draft'}
+            {saving ? 'Saving...' : saved ? '✓ Saved' : form.is_published ? 'Save changes' : 'Save draft'}
           </button>
           <button onClick={() => handleSave(!form.is_published)} disabled={saving} style={{ padding: '9px 16px', borderRadius: '999px', background: '#f59e0b', color: '#060f0b', fontSize: '13px', fontWeight: '700', border: 'none', cursor: 'pointer' }}>
             {form.is_published ? 'Unpublish' : 'Publish'}
@@ -112,7 +115,7 @@ export default function ConversationEditor({ initialData }) {
 
       {error && <p style={{ fontSize: '13px', color: '#dc2626', padding: '10px 14px', background: '#fef2f2', borderRadius: '8px', marginBottom: '20px', border: '1px solid #fecaca' }}>{error}</p>}
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '24px', alignItems: 'start' }}>
+      <div className="admin-editor-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '24px', alignItems: 'start' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
           <div style={{ padding: '24px', borderRadius: '14px', background: '#fff', border: '1px solid #e5ddd0' }}>
@@ -182,8 +185,76 @@ export default function ConversationEditor({ initialData }) {
             <input type="number" placeholder="24" style={inputStyle} value={form.duration_seconds} onChange={e => update('duration_seconds', e.target.value)} />
             <p style={{ fontSize: '11px', color: '#8a948f', marginTop: '4px' }}>Enter duration in minutes</p>
           </div>
+          <CoverField slug={form.slug} savedSlug={initialData?.slug} videoUrl={form.video_url} initialCover={initialCover} labelStyle={labelStyle} />
         </div>
       </div>
+    </div>
+  );
+}
+
+// Cover image shown on conversation cards. Stored per slug, so it needs a saved slug.
+function CoverField({ slug, savedSlug, videoUrl, initialCover, labelStyle }) {
+  const inputRef = useRef(null);
+  const [cover, setCover] = useState(initialCover);
+  const [busy, setBusy] = useState(false);
+  const fallback = getVideoEmbed(videoUrl)?.thumbnail;
+  const canEdit = !!savedSlug && slug === savedSlug;
+
+  const upload = async file => {
+    if (!file) return;
+    setBusy(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('cover', savedSlug);
+      const { url } = await adminFetch('/api/admin/upload', { method: 'POST', formData });
+      setCover(url);
+      toast.success('Cover image updated');
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setBusy(false);
+      if (inputRef.current) inputRef.current.value = '';
+    }
+  };
+
+  const remove = async () => {
+    if (!confirm('Remove the cover image?')) return;
+    setBusy(true);
+    try {
+      await adminFetch('/api/admin/upload', { method: 'DELETE', body: { cover: savedSlug } });
+      setCover(null);
+      toast.success('Cover image removed');
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const shown = cover || fallback;
+  const small = { padding: '6px 12px', borderRadius: '999px', fontSize: '12px', cursor: busy ? 'not-allowed' : 'pointer', fontFamily: 'inherit' };
+
+  return (
+    <div style={{ padding: '20px', borderRadius: '14px', background: '#fff', border: '1px solid #e5ddd0' }}>
+      <label style={labelStyle}>Cover image</label>
+      <div style={{ aspectRatio: '16/9', borderRadius: '10px', overflow: 'hidden', background: 'linear-gradient(135deg, #1a4a2a, #060f0b)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '10px' }}>
+        {shown ? <img src={shown} alt="Cover" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ color: '#fff', opacity: 0.5, fontSize: '22px' }}>▶</span>}
+      </div>
+      {canEdit ? (
+        <>
+          <input ref={inputRef} type="file" accept="image/jpeg,image/png,image/webp" style={{ display: 'none' }} onChange={e => upload(e.target.files?.[0])} />
+          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+            <button type="button" disabled={busy} onClick={() => inputRef.current?.click()} style={{ ...small, background: '#0d2318', color: '#fdfcf8', border: '1px solid #0d2318', fontWeight: 600 }}>
+              {busy ? 'Working…' : cover ? 'Replace' : 'Upload image'}
+            </button>
+            {cover && <button type="button" disabled={busy} onClick={remove} style={{ ...small, background: '#fff', color: '#dc2626', border: '1px solid #fecaca' }}>Remove</button>}
+          </div>
+          <p style={{ fontSize: '11px', color: '#8a948f', marginTop: '6px' }}>{cover ? 'Shown on the conversation cards.' : fallback ? 'Using the YouTube thumbnail. Upload an image to replace it.' : 'A 16:9 image works best (e.g. a still from the video).'}</p>
+        </>
+      ) : (
+        <p style={{ fontSize: '11px', color: '#8a948f', margin: 0 }}>{savedSlug ? 'Save the new slug first, then add a cover.' : 'Save the conversation first, then add a cover image.'}</p>
+      )}
     </div>
   );
 }

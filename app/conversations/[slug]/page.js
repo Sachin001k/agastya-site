@@ -1,7 +1,9 @@
+import { OG_IMAGES } from '@/lib/seo';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase-server';
 import { getVideoEmbed, formatDuration } from '@/lib/video';
+import { getConversationCovers } from '@/lib/covers-server';
 
 export const revalidate = 60;
 
@@ -32,11 +34,23 @@ function typeLabel(type) {
   return type === 'vlog' ? 'Vlog' : 'Interview';
 }
 
+export async function generateMetadata({ params }) {
+  const conversation = await getConversation(params.slug);
+  if (!conversation) return { title: 'Conversation not found' };
+  const description = conversation.description || `A conversation with ${conversation.guest_name || 'Agastya Khanna'}.`;
+  return {
+    title: conversation.title,
+    description,
+    openGraph: { type: 'video.other', title: conversation.title, description, images: OG_IMAGES },
+  };
+}
+
 export default async function ConversationDetailPage({ params }) {
   const conversation = await getConversation(params.slug);
   if (!conversation) notFound();
 
   const more = await getMoreConversations(params.slug);
+  const covers = await getConversationCovers();
   const video = getVideoEmbed(conversation.video_url);
   const duration = formatDuration(conversation.duration_seconds);
 
@@ -135,7 +149,7 @@ export default async function ConversationDetailPage({ params }) {
             </h3>
             <div className="cards-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
               {more.map((c) => {
-                const thumb = getVideoEmbed(c.video_url)?.thumbnail;
+                const thumb = covers[c.slug] || getVideoEmbed(c.video_url)?.thumbnail;
                 const mins = formatDuration(c.duration_seconds);
                 return (
                   <Link

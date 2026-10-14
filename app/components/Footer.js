@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { getSiteContent, socialHref } from '@/lib/site-content';
+import { socialHref } from '@/lib/site-content';
+import { getSiteContent } from '@/lib/site-content-server';
 
 export default async function Footer() {
   const year = new Date().getFullYear();
@@ -38,7 +39,7 @@ export default async function Footer() {
           <div>
             <p style={{ fontSize: '11px', fontWeight: '600', letterSpacing: '1px', textTransform: 'uppercase', color: '#477e67', marginBottom: '16px' }}>Explore</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {[{ href: '/about', label: 'About' }, { href: '/writings', label: 'Writings' }, { href: '/conversations', label: 'Conversations' }, { href: '/research', label: 'Research' }, { href: '/energy-survey', label: 'Take the survey' }].map(({ href, label }) => (
+              {[{ href: '/about', label: 'About' }, { href: '/writings', label: 'Essays' }, { href: '/conversations', label: 'Conversations' }, { href: '/research', label: 'Research' }, { href: '/energy-survey', label: 'Take the survey' }].map(({ href, label }) => (
                 <Link key={href} href={href} style={{ fontSize: '14px', color: '#7aaa8e', textDecoration: 'none' }}>{label}</Link>
               ))}
             </div>

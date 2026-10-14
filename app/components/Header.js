@@ -89,14 +89,17 @@ export default function Header() {
                 <Link
                   key={href}
                   href={href}
+                  aria-current={active ? 'page' : undefined}
                   style={{
                     padding: '8px 14px',
                     borderRadius: '999px',
                     fontSize: '14px',
                     fontWeight: active ? '700' : '500',
                     textDecoration: 'none',
-                    background: active ? '#f59e0b' : 'transparent',
-                    color: active ? '#060f0b' : transparent ? 'rgba(255,255,255,0.85)' : '#2a5043',
+                    // Green tint for the current page, so it doesn't look like the amber call-to-action button
+                    background: active ? 'rgba(53,100,82,0.12)' : 'transparent',
+                    color: active ? '#0d2318' : transparent ? 'rgba(255,255,255,0.85)' : '#2a5043',
+                    boxShadow: active ? 'inset 0 -2px 0 #f59e0b' : 'none',
                     transition: 'all 0.2s ease',
                     whiteSpace: 'nowrap',
                   }}
@@ -156,14 +159,15 @@ export default function Header() {
               <Link
                 key={href}
                 href={href}
+                aria-current={active ? 'page' : undefined}
                 style={{
                   padding: '14px 18px',
                   borderRadius: '12px',
                   fontSize: '16px',
                   fontWeight: active ? '700' : '500',
                   textDecoration: 'none',
-                  background: active ? '#f59e0b' : '#f5f0e8',
-                  color: active ? '#060f0b' : '#0d2318',
+                  background: active ? '#0d2318' : '#f5f0e8',
+                  color: active ? '#fdfcf8' : '#0d2318',
                 }}
               >
                 {label}

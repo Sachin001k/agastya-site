@@ -1,13 +1,20 @@
+import { OG_IMAGES } from '@/lib/seo';
 import fs from 'fs';
 import path from 'path';
 import Link from 'next/link';
 import ScrollReveal from '../components/ScrollReveal';
-import { getSiteContent } from '@/lib/site-content';
+import { getSiteContent } from '@/lib/site-content-server';
+
+export const metadata = {
+  title: 'About',
+  description: 'Agastya Khanna is a high-school student researching the economics of India’s clean-energy transition.',
+  openGraph: { title: 'About · Agastya Khanna', description: 'Agastya Khanna is a high-school student researching the economics of India’s clean-energy transition.', images: OG_IMAGES },
+};
 
 export const revalidate = 60;
 
 // Fallback when no photo is uploaded in the admin panel: a portrait at
-// public/images/agastya.(jpg|jpeg|png|webp) replaces the monogram.
+// public/images/agastya.(jpg|jpeg|png|webp) replaces the sun animation.
 function getLocalPhoto() {
   for (const ext of ['jpg', 'jpeg', 'png', 'webp']) {
     if (fs.existsSync(path.join(process.cwd(), 'public', 'images', `agastya.${ext}`))) return `/images/agastya.${ext}`;
@@ -51,7 +58,7 @@ export default async function AboutPage() {
 
             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
               <Link href="/writings" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '13px 26px', borderRadius: '999px', background: '#f59e0b', color: '#060f0b', fontSize: '14px', fontWeight: '700', textDecoration: 'none' }}>
-                Read his writings →
+                Read his essays →
               </Link>
               <Link href="/contact" style={{ display: 'inline-flex', alignItems: 'center', padding: '13px 26px', borderRadius: '999px', border: '1px solid rgba(253,252,248,0.2)', color: 'rgba(253,252,248,0.75)', fontSize: '14px', fontWeight: '500', textDecoration: 'none' }}>
                 Get in touch
@@ -59,8 +66,14 @@ export default async function AboutPage() {
             </div>
           </div>
 
-          {/* RIGHT — sun animation */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', paddingBottom: '80px' }}>
+          {/* RIGHT — photo when there is one, otherwise the sun animation (hidden on phones) */}
+          <div className={photo ? 'about-hero-photo' : 'about-hero-sun'} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', paddingBottom: '80px' }}>
+            {photo ? (
+              <div style={{ position: 'relative', width: '100%', maxWidth: '420px' }}>
+                <div style={{ position: 'absolute', inset: '-24px', borderRadius: '32px', background: 'radial-gradient(circle at 50% 40%, rgba(245,158,11,0.35), rgba(245,158,11,0) 70%)' }} />
+                <img src={photo} alt="Agastya Khanna" style={{ position: 'relative', width: '100%', aspectRatio: '4/5', objectFit: 'cover', borderRadius: '24px', border: '1px solid rgba(245,158,11,0.35)', display: 'block', boxShadow: '0 30px 80px rgba(0,0,0,0.5)' }} />
+              </div>
+            ) : (
             <svg
               viewBox="0 0 600 600"
               style={{ width: '100%', maxWidth: '560px' }}
@@ -161,26 +174,14 @@ export default async function AboutPage() {
                 />
               ))}
             </svg>
+            )}
           </div>
         </div>
       </section>
 
       {/* ── BIO SECTION ── */}
       <section style={{ background: '#f5f0e8', padding: '80px 20px' }}>
-        <div className="bio-grid" style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '64px', alignItems: 'start' }}>
-
-          {/* Photo */}
-          <div className="reveal reveal-1">
-            {photo ? (
-              <img src={photo} alt="Agastya Khanna" style={{ width: '100%', aspectRatio: '3/4', objectFit: 'cover', borderRadius: '20px', border: '1px solid #e5ddd0', display: 'block' }} />
-            ) : (
-              <div style={{ borderRadius: '20px', background: 'linear-gradient(135deg, #0d2318, #1a4a2a)', aspectRatio: '3/4', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', border: '1px solid #2a6b4a' }}>
-                <div style={{ width: '96px', height: '96px', borderRadius: '50%', background: 'rgba(245,158,11,0.2)', border: '2px solid rgba(245,158,11,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <span style={{ fontFamily: 'Georgia, serif', fontSize: '32px', fontWeight: '700', color: '#f59e0b' }}>AK</span>
-                </div>
-              </div>
-            )}
-          </div>
+        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
 
           {/* Bio text */}
           <div className="reveal reveal-2">

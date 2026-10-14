@@ -1,3 +1,4 @@
+import { OG_IMAGES } from '@/lib/seo';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase-server';
@@ -28,6 +29,17 @@ async function getRelatedWritings(slug) {
   return data || [];
 }
 
+export async function generateMetadata({ params }) {
+  const writing = await getWriting(params.slug);
+  if (!writing) return { title: 'Essay not found' };
+  const description = writing.excerpt || 'An essay by Agastya Khanna.';
+  return {
+    title: writing.title,
+    description,
+    openGraph: { type: 'article', title: writing.title, description, publishedTime: writing.published_at || undefined, images: OG_IMAGES },
+  };
+}
+
 export default async function WritingDetailPage({ params }) {
   const writing = await getWriting(params.slug);
   if (!writing) notFound();
@@ -43,7 +55,7 @@ export default async function WritingDetailPage({ params }) {
             href="/writings"
             style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#7aaa8e', textDecoration: 'none', marginBottom: '32px' }}
           >
-            ← Back to writings
+            ← Back to essays
           </Link>
 
           <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', flexWrap: 'wrap' }}>
@@ -94,6 +106,7 @@ export default async function WritingDetailPage({ params }) {
         <div style={{ maxWidth: '700px', margin: '0 auto' }}>
           {writing.content ? (
             <div
+              className="essay-content"
               style={{ fontSize: '17px', lineHeight: 1.8, color: '#2b332e' }}
               dangerouslySetInnerHTML={{ __html: writing.content }}
             />
@@ -124,7 +137,7 @@ export default async function WritingDetailPage({ params }) {
         <section style={{ background: '#f5f0e8', padding: '64px 32px 80px', borderTop: '1px solid #e5ddd0' }}>
           <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
             <h3 style={{ fontFamily: 'Georgia, serif', fontSize: '22px', fontWeight: '600', color: '#0d2318', marginBottom: '28px' }}>
-              More writings
+              More essays
             </h3>
             <div className="cards-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
               {related.map((r, i) => (
@@ -147,7 +160,7 @@ export default async function WritingDetailPage({ params }) {
                 href="/writings"
                 style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '12px 24px', borderRadius: '999px', background: '#0d2318', color: '#fdfcf8', fontSize: '14px', fontWeight: '600', textDecoration: 'none' }}
               >
-                View all writings →
+                View all essays →
               </Link>
             </div>
           </div>

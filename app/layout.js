@@ -4,12 +4,29 @@ import Footer from './components/Footer';
 import HideOnAdmin from './components/HideOnAdmin';
 import './globals.css';
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL
+  || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+const DESCRIPTION = 'Research, essays and conversations on the economics of energy and India\'s clean-energy transition.';
+
 export const metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
     default: 'Agastya Khanna — Economics & Energy',
     template: '%s · Agastya Khanna',
   },
-  description: 'Research, writing, and conversations on the economics of energy and India\'s clean-energy transition.',
+  description: DESCRIPTION,
+  openGraph: {
+    type: 'website',
+    siteName: 'Agastya Khanna',
+    title: 'Agastya Khanna — Economics & Energy',
+    description: DESCRIPTION,
+    locale: 'en_IN',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Agastya Khanna — Economics & Energy',
+    description: DESCRIPTION,
+  },
   icons: {
     icon: '/images/FullLogo_Transparent_NoBuffer.png',
     apple: '/images/FullLogo_Transparent_NoBuffer.png',

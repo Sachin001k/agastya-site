@@ -1,7 +1,14 @@
+import { OG_IMAGES } from '@/lib/seo';
 import Link from 'next/link';
 import ScrollReveal from '../components/ScrollReveal';
 import WritingsGrid from './WritingsGrid';
 import { createClient } from '@/lib/supabase-server';
+
+export const metadata = {
+  title: 'Essays',
+  description: 'Essays on carbon pricing, renewable energy and climate policy by Agastya Khanna.',
+  openGraph: { title: 'Essays · Agastya Khanna', description: 'Essays on carbon pricing, renewable energy and climate policy by Agastya Khanna.', images: OG_IMAGES },
+};
 
 export const revalidate = 60;
 
@@ -28,21 +35,18 @@ export default async function WritingsPage() {
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', border: '1px solid rgba(245,158,11,0.4)', borderRadius: '999px', padding: '5px 14px', marginBottom: '24px', background: 'rgba(245,158,11,0.08)' }}>
             <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#f59e0b', display: 'inline-block' }} />
-            <span style={{ fontSize: '11px', letterSpacing: '1.5px', color: '#fcd34d', fontWeight: '500' }}>WRITINGS</span>
+            <span style={{ fontSize: '11px', letterSpacing: '1.5px', color: '#fcd34d', fontWeight: '500' }}>ESSAYS</span>
           </div>
           <div className='two-col-grid' style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '48px', alignItems: 'end' }}>
             <div>
               <h1 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(2.4rem, 4vw, 3.8rem)', fontWeight: '700', lineHeight: 1.1, color: '#fdfcf8', margin: '0 0 16px', letterSpacing: '-1px' }}>
-                Essays &amp; <span style={{ color: '#f59e0b' }}>writings</span>
+                Essays on <span style={{ color: '#f59e0b' }}>energy &amp; climate</span>
               </h1>
               <p style={{ fontSize: '17px', lineHeight: 1.75, color: 'rgba(253,252,248,0.65)', maxWidth: '420px' }}>
-                Long-form essays on energy economics, subsidy reform, and India&apos;s path to a clean-energy future.
+                Essays on carbon pricing, renewable energy and climate policy — and what they mean for India&apos;s clean-energy future.
               </p>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', alignItems: 'flex-end' }}>
-              <p style={{ fontSize: '13px', color: '#7aaa8e' }}>
-                Essays are added by the scholar through the admin panel.
-              </p>
               <div style={{ display: 'flex', gap: '16px' }}>
                 <div style={{ textAlign: 'center' }}>
                   <p style={{ fontFamily: 'Georgia, serif', fontSize: '28px', fontWeight: '600', color: '#f59e0b', margin: 0 }}>{writings.length}</p>

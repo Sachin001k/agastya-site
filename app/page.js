@@ -2,7 +2,8 @@ import Link from 'next/link';
 import ScrollReveal from './components/ScrollReveal';
 import { createClient } from '@/lib/supabase-server';
 import { getVideoEmbed, formatDuration } from '@/lib/video';
-import { getSiteContent } from '@/lib/site-content';
+import { getSiteContent } from '@/lib/site-content-server';
+import { getConversationCovers } from '@/lib/covers-server';
 
 export const revalidate = 60;
 
@@ -48,6 +49,7 @@ export default async function HomePage() {
   const recentWritings = await getRecentWritings();
   const recentConversations = await getRecentConversations();
   const { home } = await getSiteContent();
+  const covers = await getConversationCovers();
 
   return (
     <>
@@ -128,7 +130,7 @@ export default async function HomePage() {
           <p className="reveal reveal-1" style={{ fontSize: '11px', fontWeight: '600', letterSpacing: '1.5px', textTransform: 'uppercase', color: '#8a948f', marginBottom: '32px' }}>Explore</p>
           <div className="cards-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
             {[
-              { href: '/writings',      color: '#356452', label: 'Writings',      icon: '✍️', desc: "Essays on energy economics, subsidy reform, and India's policy landscape.",              cta: 'Read essays' },
+              { href: '/writings',      color: '#356452', label: 'Essays',        icon: '✍️', desc: 'Essays on carbon pricing, renewable energy and climate policy.',              cta: 'Read essays' },
               { href: '/conversations', color: '#b45309', label: 'Conversations', icon: '🎙️', desc: 'Interviews with researchers, policymakers, and households on the energy transition.',    cta: 'Watch videos' },
               { href: '/research',      color: '#1a5c42', label: 'Research',      icon: '📊', desc: 'An ongoing household energy survey — what it will measure, how, and why it matters.',   cta: 'See the research' },
             ].map((card, i) => (
@@ -152,7 +154,7 @@ export default async function HomePage() {
       <section className="page-section" style={{ background: '#f5f0e8', padding: '0 32px 64px' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           <div className="reveal reveal-1" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '28px' }}>
-            <h2 style={{ fontFamily: 'Georgia, serif', fontSize: '28px', fontWeight: '600', color: '#0d2318' }}>Recent writings</h2>
+            <h2 style={{ fontFamily: 'Georgia, serif', fontSize: '28px', fontWeight: '600', color: '#0d2318' }}>Recent essays</h2>
             <Link href="/writings" style={{ fontSize: '14px', fontWeight: '500', color: '#356452', textDecoration: 'none' }}>View all →</Link>
           </div>
           <div className="cards-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
@@ -184,7 +186,7 @@ export default async function HomePage() {
           </div>
           <div className="cards-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
             {recentConversations.map((c, i) => {
-              const thumb = getVideoEmbed(c.video_url)?.thumbnail;
+              const thumb = covers[c.slug] || getVideoEmbed(c.video_url)?.thumbnail;
               const mins = formatDuration(c.duration_seconds);
               return (
                 <Link

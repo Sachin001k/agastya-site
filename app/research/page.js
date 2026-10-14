@@ -1,6 +1,13 @@
+import { OG_IMAGES } from '@/lib/seo';
 import Link from 'next/link';
 import ScrollReveal from '../components/ScrollReveal';
-import { getSiteContent } from '@/lib/site-content';
+import { getSiteContent } from '@/lib/site-content-server';
+
+export const metadata = {
+  title: 'Research',
+  description: 'A household energy survey on how Indian homes use and pay for electricity, and what it would take to switch to solar.',
+  openGraph: { title: 'Research · Agastya Khanna', description: 'A household energy survey on how Indian homes use and pay for electricity, and what it would take to switch to solar.', images: OG_IMAGES },
+};
 
 // Findings are not shown until the survey has a meaningful sample.
 // Until then this page describes the research design rather than results.
@@ -27,7 +34,7 @@ export default async function ResearchPage() {
   const TARGET_HOUSEHOLDS = research.target_households;
 
   return (
-    <>
+    <div className="research-page">
       <ScrollReveal />
       <style>{`
         @media (max-width: 768px) {
@@ -38,7 +45,15 @@ export default async function ResearchPage() {
           .research-three-col { grid-template-columns: 1fr !important; }
           .research-six-col { grid-template-columns: repeat(3,1fr) !important; }
           .research-carbon-grid { grid-template-columns: repeat(2,1fr) !important; }
+          /* Tighter spacing so the page isn't endless on phones */
+          .research-page section { padding-top: 44px !important; padding-bottom: 44px !important; }
+          .research-page .hover-card { padding: 18px !important; }
+          .research-page .research-three-col { gap: 12px !important; }
+          .research-method-grid { grid-template-columns: 1fr !important; gap: 10px !important; }
         }
+        .research-details > summary { list-style: none; cursor: pointer; }
+        .research-details > summary::-webkit-details-marker { display: none; }
+        .research-details[open] .research-details-chevron { transform: rotate(180deg); }
       `}</style>
 
       {/* ── HERO ── */}
@@ -179,7 +194,16 @@ export default async function ResearchPage() {
           <h2 className="reveal reveal-2" style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(1.4rem, 2.5vw, 2rem)', fontWeight: '600', color: '#0d2318', marginBottom: '28px' }}>
             How this research is being conducted
           </h2>
-          <div className="reveal reveal-3" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '32px' }}>
+          <p className="reveal reveal-3" style={{ fontSize: '15px', lineHeight: 1.75, color: '#5a6661', marginBottom: '20px' }}>
+            A self-reported online survey of households across India, with explicit research consent and every response anonymised before analysis.
+          </p>
+          <details className="research-details reveal reveal-4" style={{ borderRadius: '12px', border: '1px solid #e5ddd0', background: '#fdfcf8' }}>
+            <summary style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', fontSize: '14px', fontWeight: '600', color: '#0d2318' }}>
+              Full methodology &amp; limitations
+              <span className="research-details-chevron" style={{ transition: 'transform 0.2s ease', color: '#8a948f' }}>▾</span>
+            </summary>
+            <div style={{ padding: '0 20px 20px' }}>
+          <div className="research-method-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
             {[
               { label: 'Survey method',      value: 'Self-reported online survey' },
               { label: 'Sample size',        value: `Ongoing — target ${TARGET_HOUSEHOLDS}+ households` },
@@ -194,12 +218,14 @@ export default async function ResearchPage() {
               </div>
             ))}
           </div>
-          <div className="reveal reveal-4" style={{ padding: '20px 24px', borderRadius: '12px', background: '#f5f0e8', border: '1px solid #e5ddd0' }}>
+          <div style={{ padding: '20px 24px', borderRadius: '12px', background: '#f5f0e8', border: '1px solid #e5ddd0' }}>
             <p style={{ fontSize: '13px', fontWeight: '600', color: '#356452', marginBottom: '8px' }}>Limitations</p>
             <p style={{ fontSize: '14px', lineHeight: 1.7, color: '#5a6661' }}>
               This is a self-reported survey with a non-random sample. Results will reflect respondents who chose to participate and may not be fully representative of the Indian population. The research is designed to be exploratory — identifying patterns and generating hypotheses rather than establishing definitive causal relationships.
             </p>
           </div>
+            </div>
+          </details>
         </div>
       </section>
 
@@ -308,6 +334,6 @@ export default async function ResearchPage() {
           </Link>
         </div>
       </section>
-    </>
+    </div>
   );
 }

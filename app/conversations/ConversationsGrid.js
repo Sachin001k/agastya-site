@@ -56,7 +56,8 @@ export default function ConversationsGrid({ conversations }) {
       </div>
 
       {/* ── GRID ── */}
-      <div className='cards-grid' style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
+      {/* key: rebuild the grid on filter change so the cards' fade-in runs again */}
+      <div key={selectedType} className='cards-grid' style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
         {filteredConversations.length > 0 ? (
           filteredConversations.map((c, i) => (
             <Link

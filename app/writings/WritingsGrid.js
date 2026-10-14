@@ -52,7 +52,8 @@ export default function WritingsGrid({ writings }) {
       <section style={{ background: '#f5f0e8', padding: '48px 32px 80px' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           {filteredWritings.length > 0 ? (
-            <div className='cards-grid' style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
+            // key: rebuild the grid on filter change so the cards' fade-in runs again
+            <div key={selectedTag} className='cards-grid' style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
               {filteredWritings.map((w, i) => {
                 const stripped = stripHtml(w.content);
                 const excerpt = w.excerpt || (stripped.length > 140 ? `${stripped.slice(0, 140)}…` : stripped);

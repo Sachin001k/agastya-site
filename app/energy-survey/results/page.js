@@ -63,15 +63,29 @@ function getRating(percentVsAvg) {
 export default function SurveyResultsPage() {
   const [results, setResults] = useState(null);
   const [data, setData] = useState(null);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    const stored = sessionStorage.getItem('survey_data');
+    // The survey saves answers for this tab and also on this device, so the report can be reopened later
+    let stored = null;
+    try { stored = sessionStorage.getItem('survey_data') || localStorage.getItem('survey_data'); } catch {}
     if (stored) {
-      const parsed = JSON.parse(stored);
-      setData(parsed);
-      setResults(calculateResults(parsed));
+      try {
+        const parsed = JSON.parse(stored);
+        setData(parsed);
+        setResults(calculateResults(parsed));
+      } catch {}
     }
+    setLoaded(true);
   }, []);
+
+  if (!loaded) {
+    return (
+      <div style={{ minHeight: '70vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f5f0e8' }}>
+        <p style={{ fontSize: '14px', color: '#8a948f' }}>Preparing your report…</p>
+      </div>
+    );
+  }
 
   if (!results) {
     return (
