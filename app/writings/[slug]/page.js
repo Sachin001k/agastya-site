@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase-server';
+import ReadPdfButton from '../../components/PdfViewer';
 
 export const revalidate = 60;
 
@@ -76,14 +77,13 @@ export default async function WritingDetailPage({ params }) {
             </div>
 
             {writing.pdf_url && (
-              <a
-                href={writing.pdf_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '10px 20px', borderRadius: '999px', background: '#f59e0b', color: '#060f0b', fontSize: '13px', fontWeight: '700', textDecoration: 'none', flexShrink: 0 }}
+              <ReadPdfButton
+                url={writing.pdf_url}
+                title={writing.title}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '10px 20px', borderRadius: '999px', background: '#f59e0b', color: '#060f0b', fontSize: '13px', fontWeight: '700', border: 'none', flexShrink: 0 }}
               >
-                📄 Download PDF
-              </a>
+                📄 Read essay
+              </ReadPdfButton>
             )}
           </div>
         </div>
@@ -101,20 +101,22 @@ export default async function WritingDetailPage({ params }) {
             <p style={{ fontSize: '15px', color: '#8a948f' }}>This essay has no content yet.</p>
           ) : null}
 
-          {writing.pdf_url && (
-            <div style={{ padding: '24px', borderRadius: '12px', background: '#f5f0e8', border: '1px solid #e5ddd0', marginTop: '40px', textAlign: 'center' }}>
-              <p style={{ fontSize: '14px', color: '#5a6661', marginBottom: '12px' }}>This essay includes a full PDF report with charts and data.</p>
-              <a
-                href={writing.pdf_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '10px 20px', borderRadius: '999px', background: '#0d2318', color: '#fdfcf8', fontSize: '13px', fontWeight: '600', textDecoration: 'none' }}
-              >
-                📄 Download the full PDF
-              </a>
-            </div>
-          )}
         </div>
+
+        {writing.pdf_url && (
+          <div style={{ maxWidth: '700px', margin: writing.content ? '48px auto 0' : '0 auto', padding: '40px 32px', borderRadius: '16px', background: '#0d2318', border: '1px solid #1a4a2a', textAlign: 'center' }}>
+            <span style={{ fontSize: '36px', display: 'block', marginBottom: '12px' }}>📄</span>
+            <p style={{ fontFamily: 'Georgia, serif', fontSize: '20px', fontWeight: '600', color: '#fdfcf8', marginBottom: '8px' }}>Read the full essay</p>
+            <p style={{ fontSize: '14px', color: '#7aaa8e', marginBottom: '24px' }}>Opens right here on the page — no download needed.</p>
+            <ReadPdfButton
+              url={writing.pdf_url}
+              title={writing.title}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '12px 26px', borderRadius: '999px', background: '#f59e0b', color: '#060f0b', fontSize: '14px', fontWeight: '700', border: 'none' }}
+            >
+              Open essay →
+            </ReadPdfButton>
+          </div>
+        )}
       </section>
 
       {/* ── RELATED ── */}
@@ -124,7 +126,7 @@ export default async function WritingDetailPage({ params }) {
             <h3 style={{ fontFamily: 'Georgia, serif', fontSize: '22px', fontWeight: '600', color: '#0d2318', marginBottom: '28px' }}>
               More writings
             </h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
+            <div className="cards-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
               {related.map((r, i) => (
                 <Link
                   key={r.slug}

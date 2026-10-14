@@ -1,24 +1,34 @@
 import Link from 'next/link';
 import ScrollReveal from './components/ScrollReveal';
 import { createClient } from '@/lib/supabase-server';
+import { getVideoEmbed, formatDuration } from '@/lib/video';
+
+export const revalidate = 60;
 
 async function getStats() {
   const supabase = createClient();
-  const [writingsRes, surveysRes] = await Promise.all([
+  const [writingsRes, conversationsRes] = await Promise.all([
     supabase.from('writings').select('id').eq('is_published', true),
-    supabase.from('survey_responses').select('id, state')
+    supabase.from('conversations').select('duration_seconds').eq('is_published', true),
   ]);
 
-  const essayCount = writingsRes.data?.length || 0;
-  const surveyCount = surveysRes.data?.length || 0;
-  const stateSet = new Set(surveysRes.data?.map(r => r.state).filter(Boolean));
-
+  const conversations = conversationsRes.data || [];
   return {
-    households: surveyCount,
-    essays: essayCount,
-    conversations: 0,
-    states: stateSet.size
+    essays: writingsRes.data?.length || 0,
+    conversations: conversations.length,
+    minutes: Math.round(conversations.reduce((sum, c) => sum + (c.duration_seconds || 0), 0) / 60),
   };
+}
+
+async function getRecentConversations() {
+  const supabase = createClient();
+  const { data } = await supabase
+    .from('conversations')
+    .select('title, slug, type, video_url, guest_name, duration_seconds')
+    .eq('is_published', true)
+    .order('published_at', { ascending: false })
+    .limit(3);
+  return data || [];
 }
 
 async function getRecentWritings() {
@@ -35,6 +45,7 @@ async function getRecentWritings() {
 export default async function HomePage() {
   const stats = await getStats();
   const recentWritings = await getRecentWritings();
+  const recentConversations = await getRecentConversations();
 
   return (
     <>
@@ -80,10 +91,10 @@ export default async function HomePage() {
       <section style={{ background: '#0d2318', borderTop: '1px solid #1a4a2a', borderBottom: '1px solid #1a4a2a' }}>
         <div className="stats-grid" style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)' }}>
           {[
-            { label: 'Households surveyed', value: stats.households },
-            { label: 'Essays published',    value: stats.essays },
-            { label: 'Conversations',       value: stats.conversations },
-            { label: 'States covered',      value: stats.states },
+            { label: 'Essays published',      value: stats.essays },
+            { label: 'Conversations',         value: stats.conversations },
+            { label: 'Minutes of interviews', value: stats.minutes },
+            { label: 'Household survey',      value: 'Open' },
           ].map((s, i) => (
             <div key={s.label} style={{ padding: '28px 16px', textAlign: 'center', borderRight: i < 3 ? '1px solid #1a4a2a' : 'none' }}>
               <p style={{ fontFamily: 'Georgia, serif', fontSize: '28px', fontWeight: '600', color: '#f59e0b', margin: 0 }}>{s.value}</p>
@@ -117,7 +128,7 @@ export default async function HomePage() {
             {[
               { href: '/writings',      color: '#356452', label: 'Writings',      icon: '✍️', desc: "Essays on energy economics, subsidy reform, and India's policy landscape.",              cta: 'Read essays' },
               { href: '/conversations', color: '#b45309', label: 'Conversations', icon: '🎙️', desc: 'Interviews with researchers, policymakers, and households on the energy transition.',    cta: 'Watch videos' },
-              { href: '/research',      color: '#1a5c42', label: 'Research',      icon: '📊', desc: 'Primary survey data on household energy consumption with findings and recommendations.', cta: 'See findings' },
+              { href: '/research',      color: '#1a5c42', label: 'Research',      icon: '📊', desc: 'An ongoing household energy survey — what it will measure, how, and why it matters.',   cta: 'See the research' },
             ].map((card, i) => (
               <Link
                 key={card.href}
@@ -162,6 +173,7 @@ export default async function HomePage() {
       </section>
 
       {/* ── RECENT CONVERSATIONS ── */}
+      {recentConversations.length > 0 && (
       <section className="page-section" style={{ background: '#f5f0e8', padding: '0 32px 64px' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           <div className="reveal reveal-1" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '28px' }}>
@@ -169,28 +181,36 @@ export default async function HomePage() {
             <Link href="/conversations" style={{ fontSize: '14px', fontWeight: '500', color: '#356452', textDecoration: 'none' }}>View all →</Link>
           </div>
           <div className="cards-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
-            {[
-              { type: 'Interview' },
-              { type: 'Vlog' },
-              { type: 'Interview' },
-            ].map((c, i) => (
-              <div
-                key={i}
-                className={`reveal reveal-${i + 2} hover-card`}
-                style={{ borderRadius: '12px', background: '#fff', border: '1px solid #e5ddd0', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}
-              >
-                <div style={{ aspectRatio: '16/9', background: 'linear-gradient(135deg, #1a4a2a 0%, #0d2318 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <span style={{ fontSize: '36px', opacity: 0.3 }}>▶</span>
-                </div>
-                <div style={{ padding: '16px' }}>
-                  <p style={{ fontSize: '11px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.8px', color: '#b45309', marginBottom: '8px' }}>{c.type}</p>
-                  <p style={{ fontFamily: 'Georgia, serif', fontSize: '16px', fontWeight: '600', color: '#c8b89a' }}>Conversation title will appear here</p>
-                </div>
-              </div>
-            ))}
+            {recentConversations.map((c, i) => {
+              const thumb = getVideoEmbed(c.video_url)?.thumbnail;
+              const mins = formatDuration(c.duration_seconds);
+              return (
+                <Link
+                  key={c.slug}
+                  href={`/conversations/${c.slug}`}
+                  className={`reveal reveal-${i + 2} hover-card`}
+                  style={{ borderRadius: '12px', background: '#fff', border: '1px solid #e5ddd0', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', textDecoration: 'none', display: 'block' }}
+                >
+                  <div style={{ aspectRatio: '16/9', background: 'linear-gradient(135deg, #1a4a2a 0%, #0d2318 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+                    {thumb && <img src={thumb} alt="" loading="lazy" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.85 }} />}
+                    <span style={{ fontSize: '36px', opacity: 0.8, color: '#fff', position: 'relative' }}>▶</span>
+                    {mins && (
+                      <div style={{ position: 'absolute', bottom: '8px', right: '8px', background: 'rgba(0,0,0,0.7)', borderRadius: '4px', padding: '2px 7px' }}>
+                        <span style={{ fontSize: '11px', color: '#fff' }}>{mins}</span>
+                      </div>
+                    )}
+                  </div>
+                  <div style={{ padding: '16px' }}>
+                    <p style={{ fontSize: '11px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.8px', color: '#b45309', marginBottom: '8px' }}>{c.type === 'vlog' ? 'Vlog' : 'Interview'}{c.guest_name ? ` · ${c.guest_name}` : ''}</p>
+                    <p style={{ fontFamily: 'Georgia, serif', fontSize: '16px', fontWeight: '600', color: '#0d2318', lineHeight: 1.4 }}>{c.title}</p>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         </div>
       </section>
+      )}
 
       {/* ── CTA BANNER ── */}
       <section className="page-section" style={{ background: '#f5f0e8', padding: '0 32px 80px' }}>

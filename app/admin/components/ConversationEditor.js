@@ -4,16 +4,10 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase-client';
+import { detectVideoSource as detectSource } from '@/lib/video';
 
 function slugify(str) {
   return str.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 80);
-}
-
-function detectSource(url) {
-  if (!url) return 'youtube';
-  if (url.includes('youtube') || url.includes('youtu.be')) return 'youtube';
-  if (url.includes('vimeo')) return 'vimeo';
-  return 'upload';
 }
 
 export default function ConversationEditor({ initialData }) {
@@ -28,7 +22,7 @@ export default function ConversationEditor({ initialData }) {
     video_url:        initialData?.video_url        || '',
     guest_name:       initialData?.guest_name       || '',
     guest_bio:        initialData?.guest_bio        || '',
-    duration_seconds: initialData?.duration_seconds || '',
+    duration_seconds: initialData?.duration_seconds ? Math.round(initialData.duration_seconds / 60) : '',
     transcript:       initialData?.transcript       || '',
     is_published:     initialData?.is_published     || false,
   });
@@ -142,10 +136,11 @@ export default function ConversationEditor({ initialData }) {
           </div>
 
           <div style={{ padding: '24px', borderRadius: '14px', background: '#fff', border: '1px solid #e5ddd0' }}>
-            <label style={labelStyle}>Video URL * (YouTube, Vimeo, or direct link)</label>
+            <label style={labelStyle}>Video URL * (YouTube, Vimeo, Google Drive, or direct link)</label>
             <input type="url" placeholder="https://youtube.com/watch?v=..." style={inputStyle} value={form.video_url} onChange={e => update('video_url', e.target.value)} />
             <p style={{ fontSize: '11px', color: '#8a948f', marginTop: '6px' }}>
               Detected source: <strong>{detectSource(form.video_url)}</strong>
+              {detectSource(form.video_url) === 'drive' && ' — make sure the file is shared as "Anyone with the link can view".'}
             </p>
           </div>
 

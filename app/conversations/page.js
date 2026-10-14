@@ -1,16 +1,32 @@
 import Link from 'next/link';
 import ScrollReveal from '../components/ScrollReveal';
 import ConversationsGrid from './ConversationsGrid';
+import { createClient } from '@/lib/supabase-server';
+import { getVideoEmbed, formatDuration } from '@/lib/video';
 
-export default function ConversationsPage() {
-  const placeholderConversations = [
-    { slug: 'conversation-1', type: 'Interview', title: 'Conversation title will appear here', guest: 'Guest name · Organisation', duration: '24 min', desc: 'A short description of this conversation will appear here once the scholar publishes it through the admin panel.' },
-    { slug: 'conversation-2', type: 'Vlog',      title: 'Conversation title will appear here', guest: 'Agastya Khanna',            duration: '12 min', desc: 'A short description of this conversation will appear here once the scholar publishes it through the admin panel.' },
-    { slug: 'conversation-3', type: 'Interview', title: 'Conversation title will appear here', guest: 'Guest name · Organisation', duration: '31 min', desc: 'A short description of this conversation will appear here once the scholar publishes it through the admin panel.' },
-    { slug: 'conversation-4', type: 'Vlog',      title: 'Conversation title will appear here', guest: 'Agastya Khanna',            duration: '18 min', desc: 'A short description of this conversation will appear here once the scholar publishes it through the admin panel.' },
-    { slug: 'conversation-5', type: 'Interview', title: 'Conversation title will appear here', guest: 'Guest name · Organisation', duration: '27 min', desc: 'A short description of this conversation will appear here once the scholar publishes it through the admin panel.' },
-    { slug: 'conversation-6', type: 'Vlog',      title: 'Conversation title will appear here', guest: 'Agastya Khanna',            duration: '15 min', desc: 'A short description of this conversation will appear here once the scholar publishes it through the admin panel.' },
-  ];
+export const revalidate = 60;
+
+async function getConversations() {
+  const supabase = createClient();
+  const { data } = await supabase
+    .from('conversations')
+    .select('title, slug, type, description, video_url, guest_name, duration_seconds, published_at')
+    .eq('is_published', true)
+    .order('published_at', { ascending: false });
+  return (data || []).map(c => ({
+    slug: c.slug,
+    type: c.type === 'vlog' ? 'Vlog' : 'Interview',
+    title: c.title,
+    guest: c.guest_name || 'Agastya Khanna',
+    duration: formatDuration(c.duration_seconds),
+    seconds: c.duration_seconds || 0,
+    desc: c.description,
+    thumbnail: getVideoEmbed(c.video_url)?.thumbnail || null,
+  }));
+}
+
+export default async function ConversationsPage() {
+  const conversations = await getConversations();
 
   return (
     <>
@@ -41,7 +57,7 @@ export default function ConversationsPage() {
       {/* ── GRID ── */}
       <section style={{ background: '#f5f0e8', padding: '48px 32px 80px' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <ConversationsGrid conversations={placeholderConversations} />
+          <ConversationsGrid conversations={conversations} />
         </div>
       </section>
 

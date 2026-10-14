@@ -1,7 +1,30 @@
+import fs from 'fs';
+import path from 'path';
 import Link from 'next/link';
 import ScrollReveal from '../components/ScrollReveal';
 
+// Drop a portrait at public/images/agastya.(jpg|jpeg|png|webp) and it replaces the monogram.
+function getPhoto() {
+  for (const ext of ['jpg', 'jpeg', 'png', 'webp']) {
+    if (fs.existsSync(path.join(process.cwd(), 'public', 'images', `agastya.${ext}`))) return `/images/agastya.${ext}`;
+  }
+  return null;
+}
+
+const milestones = [
+  { tag: 'Essay',      title: 'Carbon offset markets',                     desc: 'Wrote “False Promises”, an essay for the HUEA Essay Contest 2025 (Environment) arguing that direct emission cuts beat carbon offset schemes.' },
+  { tag: 'Essay',      title: 'Carbon borders and global pricing',         desc: 'Used a game-theory model to ask whether the EU’s Carbon Border Adjustment Mechanism can spread carbon pricing without deepening global inequality.' },
+  { tag: 'Essay',      title: 'Decentralised renewable energy',            desc: 'Examined how off-grid and rooftop solar can deliver reliable, productive power to rural communities across the Global South.' },
+  { tag: 'June 2026',  title: 'Conversations series',                      desc: 'Interviewed Mr. Sudhir Vasudeva, former Chairman & MD of ONGC, and Gautam Handa, Founder of VGS, on India’s energy transition.' },
+  { tag: '2026',       title: 'Household energy survey launched',           desc: 'Launched a primary survey of household electricity use and solar adoption across India.' },
+];
+
+// Add entries here as { title, org, desc } — the section stays hidden while this is empty.
+const achievements = [];
+
 export default function AboutPage() {
+  const photo = getPhoto();
+
   return (
     <>
       <ScrollReveal />
@@ -149,14 +172,17 @@ export default function AboutPage() {
       <section style={{ background: '#f5f0e8', padding: '80px 20px' }}>
         <div className="bio-grid" style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '64px', alignItems: 'start' }}>
 
-          {/* Photo placeholder */}
+          {/* Photo */}
           <div className="reveal reveal-1">
-            <div style={{ borderRadius: '20px', background: 'linear-gradient(135deg, #0d2318, #1a4a2a)', aspectRatio: '3/4', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', border: '1px solid #2a6b4a' }}>
-              <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'rgba(245,158,11,0.2)', border: '2px solid rgba(245,158,11,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
-                <span style={{ fontFamily: 'Georgia, serif', fontSize: '28px', fontWeight: '700', color: '#f59e0b' }}>AK</span>
+            {photo ? (
+              <img src={photo} alt="Agastya Khanna" style={{ width: '100%', aspectRatio: '3/4', objectFit: 'cover', borderRadius: '20px', border: '1px solid #e5ddd0', display: 'block' }} />
+            ) : (
+              <div style={{ borderRadius: '20px', background: 'linear-gradient(135deg, #0d2318, #1a4a2a)', aspectRatio: '3/4', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', border: '1px solid #2a6b4a' }}>
+                <div style={{ width: '96px', height: '96px', borderRadius: '50%', background: 'rgba(245,158,11,0.2)', border: '2px solid rgba(245,158,11,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <span style={{ fontFamily: 'Georgia, serif', fontSize: '32px', fontWeight: '700', color: '#f59e0b' }}>AK</span>
+                </div>
               </div>
-              <p style={{ fontSize: '12px', color: '#7aaa8e', letterSpacing: '1px' }}>Photo coming soon</p>
-            </div>
+            )}
           </div>
 
           {/* Bio text */}
@@ -177,9 +203,9 @@ export default function AboutPage() {
 
             <div className='cards-grid' style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginTop: '36px' }}>
               {[
-                { label: 'Major',    value: 'Economics' },
-                { label: 'Focus',    value: 'Energy Policy' },
-                { label: 'Location', value: 'India' },
+                { label: 'Discipline',   value: 'Economics' },
+                { label: 'Focus',        value: 'Energy Policy' },
+                { label: 'Focus region', value: 'India' },
               ].map((fact) => (
                 <div key={fact.label} style={{ padding: '16px', borderRadius: '12px', background: '#fff', border: '1px solid #e5ddd0', textAlign: 'center' }}>
                   <p style={{ fontSize: '11px', color: '#8a948f', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '6px' }}>{fact.label}</p>
@@ -196,22 +222,16 @@ export default function AboutPage() {
         <div style={{ maxWidth: '800px', margin: '0 auto' }}>
           <p className="reveal reveal-1" style={{ fontSize: '11px', fontWeight: '600', letterSpacing: '1.5px', textTransform: 'uppercase', color: '#f59e0b', marginBottom: '8px' }}>Journey</p>
           <h2 className="reveal reveal-2" style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(1.6rem, 2.5vw, 2.2rem)', fontWeight: '600', color: '#0d2318', marginBottom: '48px' }}>
-            Academic &amp; research milestones
+            Research milestones
           </h2>
 
           <div style={{ position: 'relative' }}>
             <div style={{ position: 'absolute', left: '20px', top: 0, bottom: 0, width: '2px', background: 'linear-gradient(to bottom, #f59e0b, #1a4a2a)', opacity: 0.3 }} />
-            {[
-              { year: '2024', title: 'Began energy economics research',  desc: 'Started exploring household energy consumption patterns and their economic drivers across urban and rural India.' },
-              { year: '2024', title: 'First essays published',            desc: 'Wrote initial pieces on subsidy reform and the economics of solar adoption, developing the analytical framework for future research.' },
-              { year: '2025', title: 'Household survey launched',         desc: 'Designed and launched a primary research survey collecting energy consumption data from households across multiple Indian states.' },
-              { year: '2025', title: 'Conversations series started',      desc: 'Began interviewing researchers, policymakers, and households to bring diverse perspectives to the research.' },
-              { year: '2026', title: 'Applying to university',            desc: 'Pursuing undergraduate Economics programmes with a focus on environmental and development economics.' },
-            ].map((item, i) => (
+            {milestones.map((item, i) => (
               <div key={i} className={`reveal reveal-${Math.min(i + 1, 4)}`} style={{ display: 'flex', gap: '32px', marginBottom: '40px', paddingLeft: '8px' }}>
                 <div style={{ flexShrink: 0, width: '24px', height: '24px', borderRadius: '50%', background: '#f59e0b', border: '3px solid #f5f0e8', marginTop: '4px', zIndex: 1 }} />
                 <div style={{ padding: '20px 24px', borderRadius: '12px', background: '#f5f0e8', border: '1px solid #e5ddd0', flex: 1 }}>
-                  <span style={{ display: 'inline-block', fontSize: '11px', fontWeight: '700', color: '#f59e0b', background: 'rgba(245,158,11,0.1)', padding: '3px 10px', borderRadius: '999px', marginBottom: '10px' }}>{item.year}</span>
+                  <span style={{ display: 'inline-block', fontSize: '11px', fontWeight: '700', color: '#f59e0b', background: 'rgba(245,158,11,0.1)', padding: '3px 10px', borderRadius: '999px', marginBottom: '10px' }}>{item.tag}</span>
                   <h3 style={{ fontFamily: 'Georgia, serif', fontSize: '18px', fontWeight: '600', color: '#0d2318', marginBottom: '8px' }}>{item.title}</h3>
                   <p style={{ fontSize: '14px', lineHeight: 1.7, color: '#5a6661' }}>{item.desc}</p>
                 </div>
@@ -222,26 +242,28 @@ export default function AboutPage() {
       </section>
 
       {/* ── ACHIEVEMENTS ── */}
-      <section style={{ background: '#f5f0e8', padding: '80px 20px' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <p className="reveal reveal-1" style={{ fontSize: '11px', fontWeight: '600', letterSpacing: '1.5px', textTransform: 'uppercase', color: '#f59e0b', marginBottom: '8px' }}>Recognition</p>
-          <h2 className="reveal reveal-2" style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(1.6rem, 2.5vw, 2.2rem)', fontWeight: '600', color: '#0d2318', marginBottom: '36px' }}>
-            Achievements &amp; awards
-          </h2>
-          <div className='cards-grid' style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
-            {[0, 1, 2].map((_, i) => (
-              <div key={i} className={`reveal reveal-${i + 2} hover-card`} style={{ padding: '28px', borderRadius: '16px', background: '#fff', border: '1px solid #e5ddd0', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
-                <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(245,158,11,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
-                  <span style={{ fontSize: '20px' }}>🏆</span>
+      {achievements.length > 0 && (
+        <section style={{ background: '#f5f0e8', padding: '80px 20px' }}>
+          <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+            <p className="reveal reveal-1" style={{ fontSize: '11px', fontWeight: '600', letterSpacing: '1.5px', textTransform: 'uppercase', color: '#f59e0b', marginBottom: '8px' }}>Recognition</p>
+            <h2 className="reveal reveal-2" style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(1.6rem, 2.5vw, 2.2rem)', fontWeight: '600', color: '#0d2318', marginBottom: '36px' }}>
+              Achievements &amp; awards
+            </h2>
+            <div className='cards-grid' style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
+              {achievements.map((a, i) => (
+                <div key={a.title} className={`reveal reveal-${Math.min(i + 2, 4)} hover-card`} style={{ padding: '28px', borderRadius: '16px', background: '#fff', border: '1px solid #e5ddd0', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+                  <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(245,158,11,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
+                    <span style={{ fontSize: '20px' }}>🏆</span>
+                  </div>
+                  {a.org && <p style={{ fontSize: '11px', color: '#8a948f', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '8px' }}>{a.org}</p>}
+                  <p style={{ fontFamily: 'Georgia, serif', fontSize: '17px', fontWeight: '600', color: '#0d2318', marginBottom: '8px' }}>{a.title}</p>
+                  {a.desc && <p style={{ fontSize: '13px', lineHeight: 1.6, color: '#5a6661' }}>{a.desc}</p>}
                 </div>
-                <p style={{ fontSize: '11px', color: '#8a948f', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '8px' }}>Achievement placeholder</p>
-                <p style={{ fontFamily: 'Georgia, serif', fontSize: '17px', fontWeight: '600', color: '#c8b89a', marginBottom: '8px' }}>Award or achievement title</p>
-                <p style={{ fontSize: '13px', lineHeight: 1.6, color: '#b0a898' }}>Details will be added once the scholar provides this information.</p>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* ── CTA ── */}
       <section style={{ background: '#060f0b', padding: '80px 20px' }}>
@@ -250,7 +272,7 @@ export default function AboutPage() {
             Interested in the research?
           </h2>
           <p style={{ fontSize: '16px', lineHeight: 1.8, color: '#7aaa8e', marginBottom: '32px' }}>
-            Explore the essays, conversations, and survey findings — or reach out directly.
+            Explore the essays, conversations, and household energy survey — or reach out directly.
           </p>
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link href="/writings" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '13px 26px', borderRadius: '999px', background: '#f59e0b', color: '#060f0b', fontSize: '14px', fontWeight: '700', textDecoration: 'none' }}>

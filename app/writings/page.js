@@ -9,7 +9,7 @@ async function getPublishedWritings() {
   const supabase = createClient();
   const { data } = await supabase
     .from('writings')
-    .select('id, title, slug, excerpt, content, tags, reading_time, published_at')
+    .select('id, title, slug, excerpt, content, tags, reading_time, published_at, pdf_url')
     .eq('is_published', true)
     .order('published_at', { ascending: false });
   return data || [];
