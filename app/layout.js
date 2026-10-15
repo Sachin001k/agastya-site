@@ -4,7 +4,10 @@ import Footer from './components/Footer';
 import HideOnAdmin from './components/HideOnAdmin';
 import './globals.css';
 
+// Prefer the real domain: per-deployment *.vercel.app URLs can be password-protected,
+// which breaks link-preview images on WhatsApp/LinkedIn.
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL
+  || (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : null)
   || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
 const DESCRIPTION = 'Research, essays and conversations on the economics of energy and India\'s clean-energy transition.';
 

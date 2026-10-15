@@ -160,7 +160,7 @@ export default function WritingEditor({ initialData }) {
             <div>
               <label style={labelStyle}>Slug (URL)</label>
               <input type="text" style={inputStyle} value={form.slug} onChange={e => update('slug', e.target.value)} />
-              <p style={{ fontSize: '11px', color: '#8a948f', marginTop: '4px' }}>agastyakhanna.com/writings/{form.slug || 'your-slug'}</p>
+              <p style={{ fontSize: '11px', color: '#8a948f', marginTop: '4px' }}>solarswitch.net/writings/{form.slug || 'your-slug'}</p>
             </div>
           </div>
 
